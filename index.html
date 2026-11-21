@@ -2,1108 +2,2417 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>PerthSantaDomiia 之家</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>PerthSanta</title>
 <style>
-  :root {
-    --accent: #ff8fab; --soft: #ffe0ea; --text: #7a4a5a; --muted: #b08a9a; --gold: #f4b860;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    display: flex; justify-content: center; min-height: 100vh;
-    padding: 12px; background: linear-gradient(135deg, #fef6f0, #fce8ef);
-    color: var(--text); transition: background .4s;
-  }
-  .app { width: min(600px, 100%); margin: auto; }
-  .screen { display: none; }
-  .screen.active { display: block; animation: fadeIn .25s ease; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:none; } }
+/* ============ 基础 ============ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  background:#07060f;color:#fff;user-select:none;
+  -webkit-user-select:none;touch-action:manipulation;
+}
+button{font-family:inherit;color:inherit;border:none;background:none;cursor:pointer}
 
-  /* 顶部栏 */
-  .top-bar {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,.85); backdrop-filter: blur(10px);
-    border-radius: 20px; padding: 10px 14px; margin-bottom: 14px;
-    border: 2px solid rgba(255,255,255,.9);
-    box-shadow: 0 8px 24px rgba(180,140,160,.18);
-  }
-  .coin-box { display: flex; align-items: center; gap: 5px; font-weight: 800; font-size: 15px; color: var(--gold); }
-  .coin-box .icon { font-size: 18px; }
-  .mood-mini { display: flex; gap: 8px; flex: 1; justify-content: center; }
-  .mood-dot { display: flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; color: var(--muted); }
-  .mood-dot .m { font-size: 16px; }
-  .top-actions { display: flex; gap: 6px; }
-  .icon-btn {
-    font-size: 18px; background: #fff; border: 2px solid var(--soft);
-    border-radius: 12px; width: 38px; height: 38px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: transform .12s;
-  }
-  .icon-btn:active { transform: scale(.9); }
+/* ============ 背景层 ============ */
+#bg-layer{
+  position:fixed;inset:-6%;z-index:-3;
+  background:linear-gradient(135deg,#0b0a14,#1a1140 50%,#2a0f30);
+  background-size:cover;background-position:center;
+  transition:filter .3s;
+}
+#bg-overlay{position:fixed;inset:0;z-index:-2;background:rgba(7,6,15,.35);transition:background .3s}
+#bg-vignette{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 40%,transparent 30%,rgba(0,0,0,.55) 100%);
+}
 
-  /* 世界地图 */
-  .map-title { text-align: center; font-size: 18px; font-weight: 800; margin-bottom: 4px; }
-  .map-sub { text-align: center; font-size: 11.5px; color: var(--muted); margin-bottom: 16px; }
-  .map-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-  .room-card {
-    position: relative; aspect-ratio: 1.15; border-radius: 24px;
-    background: #fff; border: 2px solid var(--soft); cursor: pointer;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 4px; transition: transform .15s, box-shadow .15s; overflow: hidden; padding: 12px;
-  }
-  .room-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(255,180,200,.4); }
-  .room-card:active { transform: scale(.97); }
-  .room-icon { font-size: clamp(38px, 10vw, 54px); line-height: 1; }
-  .room-name { font-size: 15px; font-weight: 800; }
-  .room-desc { font-size: 10.5px; color: var(--muted); text-align: center; }
-  .room-badge {
-    position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 800;
-    background: var(--gold); color: #fff; border-radius: 8px; padding: 2px 7px;
-  }
-  .family-strip {
-    display: flex; justify-content: center; gap: clamp(12px, 6vw, 28px);
-    background: rgba(255,255,255,.7); border-radius: 20px; padding: 14px 10px;
-    border: 2px solid rgba(255,255,255,.9);
-  }
-  .fam-mini { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
-  .fam-mini .face { font-size: 30px; }
-  .fam-mini .name { font-size: 10px; font-weight: 700; color: var(--muted); }
-  .fam-mini .mood-bar { width: 44px; height: 6px; background: #f0e0e8; border-radius: 4px; overflow: hidden; }
-  .fam-mini .mood-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width .3s; }
+/* ============ 屏幕 ============ */
+.screen{
+  position:fixed;inset:0;display:none;flex-direction:column;
+}
+.screen.active{display:flex;animation:fadeUp .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
-  /* 房间 */
-  .room-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .back-btn {
-    font-family: inherit; font-size: 13px; font-weight: 700; color: var(--text);
-    background: #fff; border: 2px solid var(--soft); border-radius: 14px;
-    padding: 8px 14px; cursor: pointer; white-space: nowrap;
-  }
-  .back-btn:active { transform: scale(.95); }
-  .room-header h2 { flex: 1; font-size: 16px; font-weight: 800; text-align: center; }
-  .room-stage {
-    position: relative; border-radius: 26px; padding: 24px 16px 20px;
-    min-height: 380px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 18px;
-    border: 2px solid rgba(255,255,255,.9);
-    box-shadow: inset 0 0 40px rgba(255,255,255,.4);
-  }
-  .room-stage .scene-bg { position: absolute; inset: 0; border-radius: 26px; z-index: 0; opacity: .9; }
-  .room-stage > * { position: relative; z-index: 1; }
-  .char-line { display: flex; justify-content: center; gap: clamp(18px, 8vw, 40px); }
-  .big-fam { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; position: relative; transition: transform .15s; }
-  .big-fam:active { transform: scale(.92); }
-  .big-fam .acc { position: absolute; top: -18px; font-size: 18px; }
-  .big-fam .face {
-    width: 66px; height: 66px; border-radius: 50%; background: #fff;
-    display: flex; align-items: center; justify-content: center; font-size: 36px;
-    box-shadow: 0 8px 20px rgba(0,0,0,.12); border: 3px solid #fff; overflow: hidden;
-  }
-  .big-fam .face img { width: 100%; height: 100%; object-fit: cover; }
-  .big-fam .name { font-size: 11px; font-weight: 800; background: rgba(255,255,255,.85); padding: 1px 9px; border-radius: 8px; }
-  .big-fam .mood-tag { font-size: 9px; font-weight: 700; color: var(--muted); }
-  .speech-box {
-    min-height: 36px; font-size: 13px; font-weight: 600; text-align: center;
-    background: rgba(255,255,255,.9); border-radius: 16px; padding: 9px 16px;
-    max-width: 92%; box-shadow: 0 4px 14px rgba(0,0,0,.08);
-    opacity: 0; transition: opacity .2s;
-  }
-  .speech-box.show { opacity: 1; }
+/* ============ 开场动画 ============ */
+#intro{
+  z-index:100;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 45%,#160e2e 0%,#080614 60%,#030209 100%);
+  overflow:hidden;
+}
+#intro::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 45%,rgba(176,108,255,.16),transparent 55%);
+  opacity:0;animation:glowIn 3s ease 1.2s forwards;pointer-events:none;
+}
+@keyframes glowIn{to{opacity:1}}
 
-  /* 游戏室卡片 */
-  .room-games { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 10px; }
-  .room-game-card {
-    display: flex; align-items: center; gap: 12px; text-align: left;
-    font-family: inherit; color: var(--text);
-    background: #fff; border: 2px solid var(--soft); border-radius: 18px;
-    padding: 12px 14px; cursor: pointer; transition: transform .15s, box-shadow .15s;
+.intro-inner{position:relative;z-index:3;text-align:center;padding:0 24px;display:flex;flex-direction:column;align-items:center;width:100%;max-width:500px}
+
+.intro-welcome{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:100%;display:flex;flex-direction:column;align-items:center;
+  opacity:0;transition:opacity .6s ease, transform .6s ease;
+}
+.intro-welcome.show{opacity:1;transform:translate(-50%,-50%)}
+.intro-welcome.hide{opacity:0;transform:translate(-50%,-60%);pointer-events:none}
+.welcome-title{
+  font-size:clamp(24px,6.5vw,36px);font-weight:800;letter-spacing:.08em;
+  color:#fff;text-shadow:0 0 20px rgba(176,108,255,.8);
+  display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;
+}
+.welcome-sub{
+  margin-top:14px;font-size:13px;color:rgba(255,255,255,.6);letter-spacing:.2em;
+}
+.loading-bar{
+  margin-top:30px;width:60%;max-width:260px;height:6px;
+  background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;
+}
+.loading-fill{
+  width:0%;height:100%;border-radius:3px;
+  background:linear-gradient(90deg,#b06cff,#ff6ec7,#4ac6ff);
+  transition:width 2.2s cubic-bezier(.2,.8,.2,1);
+}
+
+.intro-lines{
+  margin-top:9vh;display:flex;flex-direction:column;gap:26px;
+  opacity:0;transition:opacity .5s ease;
+}
+.intro-lines.show{opacity:1}
+.intro-line{
+  opacity:0;transform:translateY(18px);filter:blur(10px);
+  transition:opacity .95s cubic-bezier(.2,.8,.2,1),transform .95s cubic-bezier(.2,.8,.2,1),filter .95s;
+  letter-spacing:.1em;line-height:1.5;
+}
+.intro-line.show{opacity:1;transform:none;filter:blur(0)}
+.intro-line:nth-child(1){font-size:clamp(20px,5.6vw,30px);color:#fff;font-weight:600}
+.intro-line:nth-child(2){font-size:clamp(16px,4.6vw,24px);color:#ffd479;letter-spacing:.02em}
+.intro-line:nth-child(3){font-size:clamp(17px,4.8vw,26px);color:#c99bff;font-style:italic}
+
+.skip-btn{
+  position:absolute;bottom:36px;right:24px;z-index:5;
+  font-size:13px;color:rgba(255,255,255,.4);letter-spacing:.1em;
+  padding:8px 16px;border:1px solid rgba(255,255,255,.15);border-radius:20px;
+  opacity:0;animation:fadeIn .8s ease 1s forwards;
+}
+@keyframes fadeIn{to{opacity:1}}
+#intro.fading{animation:introOut .8s ease forwards}
+@keyframes introOut{to{opacity:0;transform:scale(1.08);filter:blur(6px)}}
+
+/* ============ 主页 ============ */
+#home{padding:0 16px}
+.home-header{text-align:center;padding:calc(env(safe-area-inset-top) + 6vh) 0 3vh;flex-shrink:0}
+.home-header h1{
+  font-size:clamp(28px,8.5vw,44px);font-weight:800;letter-spacing:.14em;
+  background:linear-gradient(90deg,#fff,#c99bff,#ff6ec7);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(176,108,255,.45));
+}
+.home-header p{margin-top:10px;font-size:12px;color:rgba(255,255,255,.45);letter-spacing:.18em}
+.home-header .thai{margin-top:4px;font-size:11px;color:rgba(255,212,121,.5);letter-spacing:.05em}
+
+.game-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:14px;
+  max-width:620px;width:100%;margin:0 auto;flex:1;overflow-y:auto;
+  padding:6px 2px calc(env(safe-area-inset-bottom) + 110px);
+  align-content:start;
+}
+.game-grid::-webkit-scrollbar{display:none}
+
+.game-card{
+  position:relative;border-radius:22px;padding:24px 14px 20px;
+  background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.1);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+  overflow:hidden;
+}
+.game-card::before{
+  content:"";position:absolute;inset:0;opacity:0;transition:opacity .3s;
+  background:radial-gradient(circle at 50% 0%,var(--c,rgba(176,108,255,.35)),transparent 70%);
+}
+.game-card:active{transform:scale(.95)}
+.game-card:hover{border-color:rgba(255,255,255,.25);box-shadow:0 8px 30px rgba(176,108,255,.2)}
+.game-card:hover::before{opacity:1}
+.game-card .icon{font-size:40px;position:relative;z-index:1;filter:drop-shadow(0 4px 12px rgba(0,0,0,.4))}
+.game-card .name{font-size:15px;font-weight:700;letter-spacing:.06em;position:relative;z-index:1}
+.game-card .prog{
+  font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.05em;
+  position:relative;z-index:1;
+}
+.game-card .bar{
+  width:64%;height:3px;border-radius:2px;background:rgba(255,255,255,.1);
+  overflow:hidden;position:relative;z-index:1;margin-top:2px;
+}
+.game-card .bar i{
+  display:block;height:100%;border-radius:2px;
+  background:linear-gradient(90deg,#b06cff,#ff6ec7);transition:width .4s;
+}
+
+.settings-fab{
+  position:fixed;right:20px;bottom:calc(env(safe-area-inset-bottom) + 22px);
+  width:52px;height:52px;border-radius:50%;z-index:20;
+  background:linear-gradient(135deg,rgba(176,108,255,.9),rgba(255,110,199,.9));
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  box-shadow:0 8px 28px rgba(176,108,255,.45);
+  transition:transform .2s;
+}
+.settings-fab:active{transform:scale(.9) rotate(45deg)}
+
+/* ============ 通用顶栏 ============ */
+.topbar{
+  display:flex;align-items:center;gap:12px;
+  padding:calc(env(safe-area-inset-top) + 14px) 16px 14px;flex-shrink:0;
+}
+.topbar h2{font-size:16px;font-weight:600;letter-spacing:.08em;flex:1;text-align:center}
+.back-btn{
+  width:38px;height:38px;border-radius:12px;flex-shrink:0;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;line-height:1;transition:.2s;
+}
+.back-btn:active{transform:scale(.9);background:rgba(255,255,255,.16)}
+.topbar .spacer{width:38px;flex-shrink:0}
+
+/* ============ 关卡选择 ============ */
+.level-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:10px;
+  padding:8px 18px calc(env(safe-area-inset-bottom) + 40px);
+  overflow-y:auto;flex:1;align-content:start;
+}
+.level-grid::-webkit-scrollbar{display:none}
+.lvl{
+  aspect-ratio:1;border-radius:14px;font-size:15px;font-weight:700;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  transition:.18s;position:relative;
+}
+.lvl:active:not(:disabled){transform:scale(.9)}
+.lvl.done{background:linear-gradient(135deg,rgba(176,108,255,.32),rgba(255,110,199,.24));border-color:rgba(255,110,199,.4)}
+.lvl.done::after{
+  content:"✓";position:absolute;top:2px;right:5px;font-size:9px;color:#ffd479;
+}
+.lvl.locked{opacity:.28;color:rgba(255,255,255,.4)}
+.lvl.current{
+  background:linear-gradient(135deg,#b06cff,#ff6ec7);
+  box-shadow:0 0 20px rgba(176,108,255,.6);
+  animation:pulseCur 2s ease-in-out infinite;
+}
+@keyframes pulseCur{0%,100%{box-shadow:0 0 16px rgba(176,108,255,.5)}50%{box-shadow:0 0 28px rgba(255,110,199,.8)}}
+
+/* ============ 游戏区 ============ */
+#play-area{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  padding:4px 14px calc(env(safe-area-inset-bottom) + 30px);
+  display:flex;flex-direction:column;align-items:center;
+}
+#play-area::-webkit-scrollbar{display:none}
+
+.hud-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;width:100%}
+.hud-pill{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:7px 13px;font-size:11.5px;letter-spacing:.04em;
+  color:rgba(255,255,255,.6);white-space:nowrap;
+}
+.hud-pill b{color:#fff;font-size:14px;margin-left:5px;letter-spacing:.02em}
+.hud-pill.warn b{color:#ff6ec7}
+/* ============ 消消乐 ============ */
+.m3-board{
+  display:grid;gap:5px;width:100%;max-width:420px;aspect-ratio:1;
+  background:rgba(255,255,255,.04);border-radius:18px;padding:9px;
+  border:1px solid rgba(255,255,255,.08);
+  grid-auto-rows:1fr;touch-action:none;
+}
+.m3-tile{
+  display:flex;align-items:center;justify-content:center;
+  border-radius:11px;background:rgba(255,255,255,.055);
+  transition:background .15s,transform .12s,box-shadow .15s;
+  cursor:pointer;line-height:1;will-change:transform;
+}
+.m3-tile img{width:70%;height:70%;object-fit:contain;pointer-events:none}
+.m3-tile.sel{
+  background:rgba(176,108,255,.35);
+  box-shadow:0 0 0 2px #b06cff inset,0 0 16px rgba(176,108,255,.6);
+  transform:scale(.9);
+}
+.m3-tile.pop{animation:tilePop .22s ease forwards}
+@keyframes tilePop{
+  0%{transform:scale(1)}
+  45%{transform:scale(1.28);filter:brightness(2.2)}
+  100%{transform:scale(.25);opacity:0}
+}
+
+/* ============ 拼图 ============ */
+.pz-container{
+  position:relative;width:100%;max-width:440px;margin:0 auto;
+}
+.pz-board{
+  display:grid;gap:3px;width:100%;aspect-ratio:1;
+  background:rgba(255,255,255,.05);border-radius:16px;padding:6px;
+  border:1px solid rgba(255,255,255,.1);grid-auto-rows:1fr;
+  touch-action:none;
+}
+.pz-piece{
+  background-repeat:no-repeat;border-radius:6px;cursor:pointer;
+  transition:transform .15s,box-shadow .15s,filter .15s;
+  background-color:#1a1a24;position:relative;
+}
+.pz-piece.sel{
+  transform:scale(.88);box-shadow:0 0 0 3px #ffd479 inset,0 0 18px rgba(255,212,121,.8);
+  z-index:2;filter:brightness(1.25);
+}
+.pz-piece.ok{outline:1px solid rgba(120,255,180,.25);outline-offset:-1px}
+
+.pz-preview{
+  position:absolute;top:-10px;left:-10px;right:-10px;bottom:-10px;
+  border-radius:20px;background-size:cover;background-position:center;
+  z-index:10;pointer-events:none;
+  opacity:0;transition:opacity .2s;box-shadow:0 0 40px rgba(0,0,0,.8);
+  border:1px solid rgba(255,255,255,.2);
+}
+.pz-preview.show{opacity:1}
+  /* ============ 记忆卡片 ============ */
+.mc-board{
+  display:grid;gap:8px;width:100%;max-width:460px;margin:0 auto;
+  perspective:900px;
+}
+.mc-card{
+  aspect-ratio:3/4;position:relative;cursor:pointer;
+  transform-style:preserve-3d;transition:transform .42s cubic-bezier(.4,.1,.2,1);
+  border-radius:12px;
+}
+.mc-card.flip{transform:rotateY(180deg)}
+.mc-face{
+  position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(20px,7vw,34px);
+  border:1px solid rgba(255,255,255,.12);
+}
+.mc-back{
+  background:linear-gradient(150deg,rgba(176,108,255,.3),rgba(255,110,199,.18));
+  color:rgba(255,255,255,.35);font-size:16px;
+}
+.mc-front{
+  background:linear-gradient(150deg,rgba(255,255,255,.14),rgba(255,255,255,.05));
+  transform:rotateY(180deg);
+}
+.mc-front img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.mc-card.done .mc-front{
+  background:linear-gradient(150deg,rgba(120,255,180,.28),rgba(176,108,255,.2));
+  box-shadow:0 0 16px rgba(120,255,180,.35);border-color:rgba(120,255,180,.4);
+}
+
+/* ============ 打地鼠 ============ */
+.wm-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  width:100%;max-width:400px;margin-top:6px;
+}
+.wm-hole{
+  aspect-ratio:1;border-radius:50%;position:relative;overflow:hidden;
+  background:radial-gradient(circle at 50% 38%,#2b1f40,#100a1c 72%);
+  border:2px solid rgba(255,255,255,.07);
+  display:flex;align-items:flex-end;justify-content:center;
+  cursor:pointer;box-shadow:inset 0 10px 22px rgba(0,0,0,.7);
+}
+.wm-hole::after{
+  content:"";position:absolute;bottom:0;left:8%;width:84%;height:16%;
+  background:radial-gradient(ellipse,rgba(176,108,255,.16),transparent 70%);
+  border-radius:50%;
+}
+.wm-mole{
+  font-size:clamp(26px,8vw,38px);line-height:1;
+  transform:translateY(130%);transition:transform .11s cubic-bezier(.3,1.6,.5,1);
+  position:relative;z-index:2;display:flex;align-items:center;justify-content:center;width:100%;height:100%;
+}
+.wm-mole img{width:80%;height:80%;object-fit:contain;pointer-events:none}
+.wm-hole.up .wm-mole{transform:translateY(0)}
+.wm-hole.hit{animation:holeHit .2s}
+@keyframes holeHit{50%{transform:scale(.88);filter:brightness(1.8)}}
+.wm-hole.boom{animation:holeBoom .3s;background:radial-gradient(circle,#ff5b5b,#2a0a0a)}
+@keyframes holeBoom{50%{transform:scale(1.08)}}
+
+/* ============ 2048 ============ */
+.g2048-wrap{width:100%;max-width:420px;margin:0 auto}
+.g2048-board{
+  display:grid;gap:8px;background:rgba(255,255,255,.06);
+  border-radius:16px;padding:8px;aspect-ratio:1;width:100%;
+  grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);
+  border:1px solid rgba(255,255,255,.1);touch-action:none;
+}
+.t2048{
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:clamp(15px,5.5vw,30px);
+  background:rgba(255,255,255,.05);color:#fff;
+  transition:background .1s,transform .08s;letter-spacing:-.02em;
+  background-size:cover;background-position:center;
+  text-shadow:0 1px 4px rgba(0,0,0,.8), 0 0 10px rgba(0,0,0,.5);
+  position:relative;overflow:hidden;
+}
+.t2048.has-img::before{
+  content:"";position:absolute;inset:0;background:rgba(0,0,0,.3);z-index:1;
+}
+.t2048 span{position:relative;z-index:2}
+.t2048.new{animation:tileNew .18s ease}
+@keyframes tileNew{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.t2048[data-v="2"]{background:rgba(255,255,255,.14)}
+.t2048[data-v="4"]{background:rgba(255,212,121,.28);color:#fff5d8}
+.t2048[data-v="8"]{background:linear-gradient(135deg,#f6a54a,#ef8a2c);color:#3a1a00}
+.t2048[data-v="16"]{background:linear-gradient(135deg,#f58a4a,#e8622c);color:#fff}
+.t2048[data-v="32"]{background:linear-gradient(135deg,#f2685f,#d93a4c);color:#fff}
+.t2048[data-v="64"]{background:linear-gradient(135deg,#e04bd0,#a12ec4);color:#fff}
+.t2048[data-v="128"]{background:linear-gradient(135deg,#b06cff,#7b3bf0);color:#fff}
+.t2048[data-v="256"]{background:linear-gradient(135deg,#8a6cff,#5a2bd8);color:#fff;box-shadow:0 0 14px rgba(138,108,255,.6)}
+.t2048[data-v="512"]{background:linear-gradient(135deg,#4ac6ff,#1f7ae0);color:#fff;box-shadow:0 0 16px rgba(74,198,255,.6)}
+.t2048[data-v="1024"]{background:linear-gradient(135deg,#3ef0b0,#12b183);color:#023;box-shadow:0 0 18px rgba(62,240,176,.6)}
+.t2048[data-v="2048"]{background:linear-gradient(135deg,#ffd479,#ff9a3c);color:#3a1a00;box-shadow:0 0 26px rgba(255,212,121,.85)}
+/* ============ 设置面板 ============ */
+.panel{
+  position:fixed;inset:0;z-index:60;display:none;
+  align-items:flex-end;justify-content:center;
+}
+.panel.open{display:flex}
+.panel-mask{position:absolute;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(4px);animation:fadeIn .25s}
+.panel-box{
+  position:relative;width:100%;max-width:560px;max-height:86vh;overflow-y:auto;
+  background:linear-gradient(180deg,#181228,#0e0a18);
+  border-radius:26px 26px 0 0;padding:22px 20px calc(env(safe-area-inset-bottom) + 26px);
+  border-top:1px solid rgba(255,255,255,.14);
+  animation:slideUp .32s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.panel-box::-webkit-scrollbar{display:none}
+.panel-box h3{font-size:16px;letter-spacing:.1em;margin-bottom:18px;text-align:center;font-weight:600}
+.panel-sec{margin-bottom:20px}
+.panel-sec label{
+  display:block;font-size:11.5px;color:rgba(255,255,255,.5);
+  letter-spacing:.1em;margin-bottom:10px;
+}
+.bg-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.bg-preset{
+  aspect-ratio:1;border-radius:12px;border:2px solid transparent;
+  transition:.18s;position:relative;overflow:hidden;
+}
+.bg-preset:active{transform:scale(.92)}
+.bg-preset.active{border-color:#ffd479;box-shadow:0 0 14px rgba(255,212,121,.5)}
+
+.row-flex{display:flex;gap:10px;align-items:center}
+input[type=text],input[type=url]{
+  flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:11px;padding:11px 13px;color:#fff;font-size:13px;outline:none;
+  min-width:0;
   }
-  .room-game-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(255,180,200,.4); }
-  .room-game-card:active { transform: scale(.97); }
-  .rg-icon { font-size: 26px; }
-  .rg-body { flex: 1; min-width: 0; }
-  .rg-title { font-size: 14px; font-weight: 800; }
-  .rg-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .rg-arrow { font-size: 18px; color: var(--muted); }
+input[type=text]:focus,input[type=url]:focus{border-color:rgba(176,108,255,.6)}
+.btn-sm{
+  padding:11px 16px;border-radius:11px;font-size:12.5px;font-weight:600;
+  background:linear-gradient(135deg,#b06cff,#ff6ec7);white-space:nowrap;
+  transition:.2s;
+}
+.btn-sm:active{transform:scale(.94)}
+.btn-ghost{
+  padding:11px 16px;border-radius:11px;font-size:12.5px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+}
+input[type=range]{
+  width:100%;-webkit-appearance:none;height:4px;border-radius:2px;
+  background:rgba(255,255,255,.15);outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:linear-gradient(135deg,#b06cff,#ff6ec7);cursor:pointer;
+  box-shadow:0 0 10px rgba(176,108,255,.7);
+}
+.range-row{display:flex;align-items:center;gap:12px}
+.range-row span{font-size:11px;color:rgba(255,255,255,.4);width:38px;text-align:right;flex-shrink:0}
+.color-row{display:flex;gap:9px;flex-wrap:wrap}
+.color-dot{
+  width:36px;height:36px;border-radius:50%;border:2px solid transparent;transition:.18s;
+}
+.color-dot:active{transform:scale(.9)}
+.color-dot.active{border-color:#fff;box-shadow:0 0 12px rgba(255,255,255,.5)}
 
-  /* 游戏界面 */
-  .game-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  #gameTitle { flex: 1; text-align: center; font-size: 14px; font-weight: 800; }
-  #gameScore { min-width: 58px; text-align: center; font-size: 14px; font-weight: 800; color: var(--accent); background: #fff; border-radius: 14px; padding: 8px; border: 2px solid var(--soft); }
-  .game-info { text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 12px; min-height: 16px; }
-  #gameArea { display: flex; flex-direction: column; align-items: center; }
-  .game-bottom { text-align: center; margin-top: 16px; }
-  .btn { font-family: inherit; font-size: 14px; font-weight: 700; border-radius: 30px; padding: 10px 26px; cursor: pointer; border: 2px solid var(--soft); background: #fff; color: var(--text); }
-  .btn.primary { background: linear-gradient(135deg, var(--accent), #ff6b9d); color: #fff; border: none; box-shadow: 0 6px 18px rgba(255,120,160,.4); }
-  .btn:active { transform: scale(.95); }
-
-  .m3-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 4px; width: 100%; max-width: 370px; background: #fff8fb; padding: 7px; border-radius: 18px; }
-  .m3-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 10px; cursor: pointer; border: 2px solid transparent; font-size: clamp(16px,5.4vw,26px); }
-  .m3-cell.sel { border-color: var(--accent); background: var(--soft); }
-  .whack-board { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; width: 100%; max-width: 360px; }
-  .whack-hole { aspect-ratio: 1; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: clamp(26px,8vw,40px); cursor: pointer; background: var(--soft); border: 3px solid transparent; }
-  .whack-hole.on { background: #fff; border-color: var(--accent); }
-  .mem-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; width: 100%; max-width: 340px; }
-  .mem-card { aspect-ratio: 3/4; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: clamp(18px,6vw,28px); background: linear-gradient(160deg,var(--soft),#ffc8dc); border: 2px solid #fff; }
-  .mem-card.flip, .mem-card.matched { background: #fff; }
-  .mem-card.matched { opacity: .4; transform: scale(.93); }
-  .tile-img { width: 80%; height: 80%; object-fit: contain; }
-
-  /* 弹窗 */
-  .mask { position: fixed; inset: 0; background: rgba(60,30,45,.45); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .2s; }
-  .mask.show { opacity: 1; pointer-events: auto; }
-  .modal { width: min(420px,100%); background: #fff; border-radius: 24px; padding: 22px; max-height: 88vh; overflow-y: auto; }
-  .modal h3 { font-size: 17px; text-align: center; margin-bottom: 12px; }
-  .modal-body { font-size: 13.5px; line-height: 1.7; }
-  .modal-foot { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
-  .field { margin-bottom: 12px; }
-  .field label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
-  .field input { width: 100%; font-family: inherit; font-size: 14px; padding: 9px 13px; border-radius: 12px; border: 2px solid var(--soft); outline: none; }
-  .opt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-  .opt-label { font-size: 12px; font-weight: 700; color: var(--muted); min-width: 50px; }
-  .opt { width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; background: #fff; border: 2px solid var(--soft); }
-  .opt.on { border-color: var(--accent); background: var(--soft); }
-  .opt.locked { opacity: .4; cursor: not-allowed; }
-
-  /* 关卡选择 */
-  .lv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-  .lv-btn {
-    aspect-ratio: 1; border-radius: 14px; border: 2px solid var(--soft);
-    background: #fff; font-family: inherit; cursor: pointer; color: var(--text);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 1px; transition: transform .12s, border-color .15s, box-shadow .15s;
-  }
-  .lv-btn:hover:not(.locked) { border-color: var(--accent); box-shadow: 0 4px 12px rgba(255,143,171,.35); }
-  .lv-btn:active:not(.locked) { transform: scale(.92); }
-  .lv-btn .lv-num { font-size: 15px; font-weight: 800; }
-  .lv-btn .lv-meta { font-size: 9px; color: var(--muted); font-weight: 700; }
-  .lv-btn.locked { opacity: .35; cursor: not-allowed; background: #f7eef2; }
-  .lv-btn.cleared { background: #f0fbf2; border-color: #bde5c6; }
-  .lv-btn.cleared .lv-num { color: #3f7a4c; }
-  .lv-btn.cleared::after { content: '✓'; font-size: 9px; color: #3f7a4c; font-weight: 800; }
-
-  /* 教程 */
-  #tutMask { position: fixed; inset: 0; z-index: 900; display: none; }
-  #tutMask.show { display: block; }
-  #tutHole { position: fixed; border-radius: 20px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(45,22,38,.62); transition: all .28s; z-index: 901; }
-  .tut-box { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); width: min(420px,calc(100% - 32px)); background: #fff; border-radius: 22px; padding: 18px 20px; z-index: 902; box-shadow: 0 20px 50px rgba(0,0,0,.3); }
-  #tutText { font-size: 14px; font-weight: 600; line-height: 1.65; margin-bottom: 14px; }
-  .tut-actions { display: flex; gap: 10px; justify-content: flex-end; }
+/* ============ 弹窗 ============ */
+.modal{
+  position:fixed;inset:0;z-index:80;display:none;
+  align-items:center;justify-content:center;padding:24px;
+}
+.modal.open{display:flex}
+.modal-mask{position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(5px);animation:fadeIn .22s}
+.modal-box{
+  position:relative;width:100%;max-width:340px;
+  background:linear-gradient(170deg,#1d1533,#0e0a1a);
+  border:1px solid rgba(255,255,255,.14);border-radius:24px;
+  padding:30px 24px 24px;text-align:center;
+  animation:modalIn .38s cubic-bezier(.2,1.2,.4,1);
+  box-shadow:0 24px 70px rgba(0,0,0,.6);
+}
+@keyframes modalIn{from{transform:scale(.8) translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.modal-emoji{font-size:52px;margin-bottom:12px;filter:drop-shadow(0 6px 20px rgba(176,108,255,.6))}
+.modal-box h3{font-size:20px;letter-spacing:.08em;margin-bottom:8px;font-weight:700}
+.modal-box p{font-size:13px;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:22px;letter-spacing:.03em}
+.modal-btns{display:flex;gap:10px}
+.modal-btns button{
+  flex:1;padding:14px;border-radius:14px;font-size:14px;font-weight:600;
+  transition:.18s;letter-spacing:.05em;
+}
+.modal-btns button:active{transform:scale(.95)}
+.btn-primary{background:linear-gradient(135deg,#b06cff,#ff6ec7);box-shadow:0 6px 22px rgba(176,108,255,.4)}
+.btn-secondary{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14)}
+/* ============ 响应式 ============ */
+@media(max-width:360px){
+  .game-card{padding:18px 10px 16px;border-radius:18px}
+  .game-card .icon{font-size:32px}
+  .game-card .name{font-size:13px}
+  .level-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media(min-width:720px){
+  .game-grid{grid-template-columns:repeat(3,1fr);gap:18px}
+}
 </style>
 </head>
 <body>
-<div class="app">
-<!-- 世界地图 -->
-  <section id="screen-world" class="screen active">
-    <div class="top-bar">
-      <div class="coin-box"><span class="icon">🪙</span><span id="coinDisplay">0</span></div>
-      <div class="mood-mini" id="moodMini"></div>
-      <div class="top-actions">
-        <button class="icon-btn" id="btnRename" title="取名字">✏️</button>
-        <button class="icon-btn" id="btnDress" title="装扮">🎀</button>
-        <button class="icon-btn" id="btnTut" title="教程">❓</button>
+
+  <!-- 背景层 -->
+<div id="bg-layer"></div>
+<div id="bg-overlay"></div>
+<div id="bg-vignette"></div>
+
+<!-- ========== 开场动画 ========== -->
+<section id="intro" class="screen active">
+  <div class="intro-inner">
+    <div class="intro-welcome show" id="intro-welcome">
+      <div class="welcome-title">🐯 PSD 🐱 小家 👿 欢迎你</div>
+      <div class="welcome-sub">欢 迎 回 到 游 戏 盒 子</div>
+      <div class="loading-bar">
+        <div class="loading-fill" id="loading-fill"></div>
       </div>
     </div>
-    <div class="map-title" id="mapTitle">PerthSantaDomiia 之家</div>
-    <div class="map-sub">点一点房间，进去看看吧～</div>
-    <div class="map-grid" id="mapGrid"></div>
-    <div class="family-strip" id="familyStrip"></div>
-  </section>
-
-  <!-- 房间 -->
-  <section id="screen-room" class="screen">
-    <div class="room-header">
-      <button class="back-btn" id="btnBackMap">← 地图</button>
-      <h2 id="roomTitle">客厅</h2>
-      <div style="width:70px;"></div>
+    
+    <div class="intro-lines" id="intro-lines">
+      <div class="intro-line" id="il0">我们永远同在</div>
+      <div class="intro-line" id="il1">เราจะอยู่ด้วยกันตลอดไป</div>
+      <div class="intro-line" id="il2">Together forever</div>
     </div>
-    <div class="room-stage" id="roomStage"></div>
-  </section>
+  </div>
+  <button class="skip-btn" id="skip-intro">跳过 ›</button>
+</section>
 
-  <!-- 游戏 -->
-  <section id="screen-game" class="screen">
-    <div class="game-top">
-      <button class="back-btn" id="btnBackRoom">← 返回</button>
-      <div id="gameTitle">游戏</div>
-      <div id="gameScore">0</div>
+<!-- ========== 主页 ========== -->
+<section id="home" class="screen">
+  <header class="home-header">
+    <h1>PerthSanta</h1>
+    <p>我们永远同在 · Together forever</p>
+    <p class="thai">เราจะอยู่ด้วยกันตลอดไป</p>
+  </header>
+  <div class="game-grid" id="game-grid"></div>
+  <button class="settings-fab" id="open-settings">⚙</button>
+</section>
+
+<!-- ========== 关卡选择 ========== -->
+<section id="levels" class="screen">
+  <div class="topbar">
+    <button class="back-btn" id="levels-back">‹</button>
+    <h2 id="levels-title">选择关卡</h2>
+    <div class="spacer"></div>
+  </div>
+  <div class="level-grid" id="level-grid"></div>
+</section>
+
+<!-- ========== 游戏页面 ========== -->
+<section id="play" class="screen">
+  <div class="topbar">
+    <button class="back-btn" id="play-back">‹</button>
+    <h2 id="play-title">游戏</h2>
+    <div class="spacer"></div>
+  </div>
+  <div id="play-area"></div>
+</section>
+
+<!-- ========== 背景设置面板 ========== -->
+<div class="panel" id="settings-panel">
+  <div class="panel-mask" id="settings-mask"></div>
+  <div class="panel-box">
+    <h3>🎨 主页背景设置</h3>
+
+    <div class="panel-sec">
+      <label>预设背景</label>
+      <div class="bg-presets" id="bg-presets"></div>
     </div>
-    <div class="game-info" id="gameInfo"></div>
-    <div id="gameArea"></div>
-    <div class="game-bottom" id="gameBottom"></div>
-  </section>
 
+    <div class="panel-sec">
+      <label>纯色背景</label>
+      <div class="color-row" id="color-row"></div>
+    </div>
+
+    <div class="panel-sec">
+      <label>图片链接</label>
+      <div class="row-flex">
+        <input type="url" id="bg-url" placeholder="https://... 粘贴图片地址">
+        <button class="btn-sm" id="bg-url-apply">应用</button>
+      </div>
+    </div>
+
+    <div class="panel-sec">
+      <label>本地图片上传</label>
+      <div class="row-flex">
+        <button class="btn-ghost" id="bg-upload-btn" style="flex:1">📁 选择图片文件</button>
+        <input type="file" id="bg-upload" accept="image/*" style="display:none">
+      </div>
+    </div>
+
+    <div class="panel-sec">
+      <label>背景模糊</label>
+      <div class="range-row">
+        <input type="range" id="bg-blur" min="0" max="20" step="1" value="0">
+        <span id="bg-blur-val">0px</span>
+      </div>
+    </div>
+  <div class="panel-sec">
+      <label>暗色遮罩</label>
+      <div class="range-row">
+        <input type="range" id="bg-dim" min="0" max="90" step="5" value="35">
+        <span id="bg-dim-val">35%</span>
+      </div>
+    </div>
+
+    <div class="row-flex">
+      <button class="btn-ghost" id="bg-reset" style="flex:1">恢复默认</button>
+      <button class="btn-sm" id="bg-close" style="flex:1">完成</button>
+    </div>
+  </div>
 </div>
 
-<div class="mask" id="mask"><div class="modal"><h3 id="modalTitle"></h3><div class="modal-body" id="modalBody"></div><div class="modal-foot" id="modalFoot"></div></div></div>
-<div id="tutMask"><div id="tutHole"></div><div class="tut-box"><div id="tutText"></div><div class="tut-actions"><button class="btn" id="tutSkip">跳过</button><button class="btn primary" id="tutNext">下一步</button></div></div></div>
+  <!-- ========== 通用弹窗 ========== -->
+<div class="modal" id="modal">
+  <div class="modal-mask"></div>
+  <div class="modal-box">
+    <div class="modal-emoji" id="modal-emoji">🎉</div>
+    <h3 id="modal-title">标题</h3>
+    <p id="modal-text">内容</p>
+    <div class="modal-btns" id="modal-btns"></div>
+  </div>
+</div>
 
 <script>
-/* ============================================================================
-   ★★★ 开发者配置区（玩家无法修改） ★★★
-   小游戏图片 / 头像只在这里更换，玩家界面没有任何修改入口。
-   ============================================================================ */
-const TOTAL_LEVELS = 15;
+/* =========================================================================
+   PerthSanta — 游戏主程序 (修复消消乐死局Bug版)
+   ========================================================================= */
 
-const DEV_CONFIG = {
-  characters: {
-    perth:  { key:'perth',  name:'Perth',  emoji:'😎', color:'#7EB8DA' },
-    santa:  { key:'santa',  name:'Santa',  emoji:'🤠', color:'#F4A460' },
-    domiia: { key:'domiia', name:'Domiia', emoji:'👶', color:'#FFB7C5' }
-  },
+/* ============================================================
+   ⚙️ 开发者配置区 —— 请在这里修改图片、Emoji 和背景
+   ============================================================ */
+const GAME_CONFIG = {
+  backgroundImage: '', 
+  overlayOpacity: 0.35 
+};
 
-  rooms: [
-    { id:'living',  icon:'🏠', name:'客厅',   desc:'聊聊天，看看电视',    bg:'linear-gradient(180deg,#fdf6ff,#fff0f5 60%,#f5e6d3 60%)' },
-    { id:'bedroom', icon:'🛏️', name:'卧室',   desc:'休息一下',            bg:'linear-gradient(180deg,#eef4ff,#e0e8ff 60%,#d8e0f0 60%)' },
-    { id:'kitchen', icon:'🍳', name:'厨房',   desc:'做点好吃的',          bg:'linear-gradient(180deg,#fff8ee,#ffeedd 60%,#f0e0cc 60%)' },
-    { id:'game',    icon:'🎮', name:'游戏室', desc:'三个小游戏 · 各 15 关', bg:'linear-gradient(180deg,#f3f0ff,#ebe0ff 60%,#e0d4f0 60%)' }
+const ASSETS = {
+  // 拼图配置
+  puzzle: [
+     'https://picui.ogmua.cn/s1/2026/11/19/6afea96e6b25c.webp ',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b0148bd4a3b5.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b0148b7d3430.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b0148b4a2e80.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b0148b7c1f41.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b019f759ea3c.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b019f763e821.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b019f7675499.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b019f7682c5f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b019f7691b11.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b019f7698843.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b019f769ac32.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b019f76a5457.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b019f76cdb85.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a2379fbd5.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a2384694a.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a23859b1f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a2383381a.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a7278e1f7.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a6098db66.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01af27634c8.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a7f744f49.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b41567af3.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b415f196f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a7f89aa7e.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a60a04bc8.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a728364a5.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01af27728b0.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b4175e78d.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a7f8cecf9.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a7f8b797a.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b3fd81456.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a728a0126.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a6153668e.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01af27728b0.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01ae5ebe23d.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b41774736.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01ae5ee630f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b41775bec.webp',
+     
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a60b4e471.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a728c9743.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01af2794ddd.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b4178b818.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a7f8f0f0a.webp', 
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01ae5ef27e2.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b417b4bd4.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a728da7b7.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01a60b24db3.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01af27a27da.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b41b5f842.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b4998b2f8.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01ae5eee9ac.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01ae5f05e26.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b8fa12f66.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b8fa37acd.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b93d932a6.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b93dc7571.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9a4d4f24.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b321cc11c.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b321be277.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b93e49219.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b93ec4a64.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9a6449b4.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9a6793cb.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b321f24f9.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b321d9e8f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9a6acab2.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c37972aab.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c10deef56.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9a6af83e.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b322016de.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b321b15b2.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c37ae5167.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9a733405.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c37a34ab5.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b970e6cec.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc7fafc26.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9a7cbe79.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b32213866.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b3222642a.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c10df02cd.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c10ead1eb.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9a7d7fe7.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c379bb0af.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc7fe267d.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b32ced44e.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c37abaa6f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b3305094f.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b6161b9b6.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b616c6bdd.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b6173a05b.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b6173ccd2.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b6174609b.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c10ed4594.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9a7dd7a1.webp',
+      'https://picui.ogmua.cn/s1/2026/11/21/6b01be10d93bc.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bbc518a23.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c37960741.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc8017879.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c11015300.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9f2bd7cc.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c379aa333.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bbc520fcc.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01be10758ad.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9f39806d.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c110d7a43.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc802db8e.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc8044544.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c37acbc5d.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c110e11ab.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01be1166682.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bbc5aec3d.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9f3e02df.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc8081025.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c37a47318.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc809bcbc.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bbc5c2be8.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01be117c846.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc8143305.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c37a48f05.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c1116d42c.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc814ff9e.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc8153f6f.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01be11c7924.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bbc5cc3d6.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c420ad191.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c1118ed3b.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc6374635.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc639c382.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c421286c0.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01be11c9196.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01b9f40b8aa.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bbc61ed62.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c1114dfac.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc63cb3c2.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c421e3772.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc64ad72d.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bbc634ac5.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01be11e6e06.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c17aafe65.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc649a902.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c422dfa59.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc6509ee1.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc64abc09.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01be12d522c.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bbc69830f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c17b9e032.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc659abf2.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc65943b9.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c422e3013.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cc658400c.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bbc6ad1c3.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01be1336f56.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c17bb2a9a.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01ce60e228b.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01ce610a877.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cecc7dfce.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c422f1587.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01be13c9163.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bbc6b0e7b.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01ce860294d.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01ce8651c8b.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c4232f338.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cea41eab6.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01ceccf3bee.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bf9908405.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bc44c1b9f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cecd52b49.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cecd8404a.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c423342af.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cecd8c16a.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cecd93def.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bc4501a88.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bf996759d.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cece1dfe2.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c472dcc89.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cece43392.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c423391ab.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cecea2eb9.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cecea2d7f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cf290065c.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bf999e671.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bc454a943.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cf290a42b.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cf2933ce0.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cf2955ce6.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bf9a42e5d.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bc4574ea1.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01cf295d2e9.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d03984c06.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d039c79b2.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d039cad28.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d03a089ea.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bc45775be.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bf9a469dd.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d03a2358f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d03a263e2.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d03a850b2.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d03ae6d28.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d03b0ce08.webp',
+     
+    'https://picui.ogmua.cn/s1/2026/11/22/6b01d03b1fe34.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bc458ce38.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bf9a5bac7.webp',
+   'https://picui.ogmua.cn/s1/2026/11/22/6b01d092de789.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d092eecb4.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d0931fa61.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d093250ad.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bc45c806f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01beba10d85.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d0934b513.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d093762fc.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d093b445a.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d09438d51.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d094445f5.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bc4629519.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bf9ab2c88.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d0945083c.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d1f139975.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d1f179e2c.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d1f219fec.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d1f29bf19.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d1f2ab721.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d1f2c210d.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bc4633c7a.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bff0452dd.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d1f3276af.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d1f356eb8.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d1f366fb7.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bc466cbcb.webp',
+     'https://picui.ogmua.cn/s1/2026/11/21/6b01bff10c64c.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d1f38a988.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d27077025.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d271bf5f5.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d271c1b9b.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d27285495.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c740b40d0.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c81f67290.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d24a88e7f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d272942cf.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d272d0cde.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d2731d23e.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d2737931b.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c81fab663.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c740ecfc7.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d273867fc.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d46232d3e.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c88c2d28f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c7a50429c.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d463194d3.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c7411c557.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c81fc89d3.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4631bb3e.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d463a7fbc.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d463b1837.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c7a43a545.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c88ba4ab6.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c82009435.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c74133738.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c88b205ff.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c7a439f4e.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d464de4af.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d465cbeea.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4676c4ad.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c74171aa1.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c81fc8d4e.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d467785e1.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d46765eaf.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c7a4e15ac.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c88b4536b.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4c11dc7d.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c8211c50a.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c741907d4.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4c213360.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c88acaec0.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c7a5834dc.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4c3bb1f0.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4c3d8618.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c741e6c22.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c8206cdac.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4c3dd391.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4c3eea91.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c88a5c6b5.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4c424b4b.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c7a45c88d.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c8216e330.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c74265bc1.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4c49eabf.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c7a57e0cc.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c88a2e940.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4c497328.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d4c503ee7.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c74296700.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c8216bcb7.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5156bf36.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c88943c36.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c7a284c0f.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5162b6c6.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d51628cb9.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c820df559.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01c74c25733.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d516a6b49.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d516a6c83.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d516a658a.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d516d0525.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d51713148.webp',
+     
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5a691474.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5a747aa7.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5a777155.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5a78f9d1.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5a78d5c7.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5a799559.webp',
+   'https://picui.ogmua.cn/s1/2026/11/22/6b01d5a862e83.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5a8dc757.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5a91b7ed.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5a928242.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d6048dc14.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d604bafa5.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d604c42cb.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d6053b4a3.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d5a862e83.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d6058f3e0.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d606851ba.webp',
+     'https://picui.ogmua.cn/s1/2026/11/22/6b01d606da829.webp',
   ],
 
-  match3: {
-    tiles: [
-      { id:'perth',  emoji:'😎' },          // ← 可换成 { id:'perth', img:'图片地址' }
-      { id:'santa',  emoji:'🤠' },
-      { id:'domiia', emoji:'👶' },
-      { id:'gift',   emoji:'🎁' },
-      { id:'bear',   emoji:'🧸' },
-      { id:'coffee', emoji:'☕' }
-    ],
-    /* 15 关：目标分递增、时间递减 */
-    levels: Array.from({ length: TOTAL_LEVELS }, function (_, i) {
-      const lv = i + 1;
-      return {
-        duration: Math.max(45, 62 - Math.floor((lv - 1) * 1.2)),  // 62 → 45 秒
-        target:   250 + lv * 30,                                  // 280 → 700 分
-        reward:   8 + lv * 3                                      // 11 → 53 金币
-      };
-    })
-  },
+  // 开心消消乐
+  match3: [
+    { name: '苹果', emoji: '🍎', img: 'https://i.postimg.cc/9FG0yV4S/retouch-2026112115181703.jpg' },
+    { name: '葡萄', emoji: '🍇', img: 'https://i.postimg.cc/yYJ5GYhr/retouch-2026112115260787.jpg' },
+    { name: '柠檬', emoji: '🍋', img: 'https://i.postimg.cc/tTCvNXCv/retouch-2026112115262685.jpg' },
+    { name: '西瓜', emoji: '🍉', img: 'https://i.postimg.cc/DzCHDWNH/retouch-2026112115295910.jpg' },
+    { name: '蓝莓', emoji: '🫐', img: 'https://i.postimg.cc/FHNvSDKQ/retouch-2026112121151933.jpg' },
+    { name: '星星', emoji: '⭐', img: 'https://i.postimg.cc/vmwQ0bXb/retouch-2026112121125662.jpg' }
+  ],
 
+  // 打地鼠
   whack: {
-    good: [ { emoji:'🎬', score:10 }, { emoji:'🌟', score:15 }, { emoji:'📜', score:10 } ],
-    bad:  [ { emoji:'😡', score:-8 }, { emoji:'📸', score:-5 } ],
-    /* 15 关：出怪变快、目标变高、坏目标概率略升 */
-    levels: Array.from({ length: TOTAL_LEVELS }, function (_, i) {
-      const lv = i + 1;
-      return {
-        duration: 30,
-        target:   100 + lv * 12,                                // 112 → 280 分
-        interval: Math.max(260, 500 - lv * 15),                 // 485 → 275 毫秒
-        badRate:  Math.min(0.4, 0.2 + lv * 0.012),              // 21% → 38%
-        reward:   8 + lv * 3
-      };
-    })
+    mole: { name: '地鼠', emoji: '🐭', img: 'https://i.postimg.cc/BvCR005N/retouch-2026112121390425.jpg' },
+    bomb: { name: '炸弹', emoji: '💣', img: '' }
   },
+// 记忆翻牌
+  memoryGroups: [
+    {
+      name: '🐯🐱👿',
+      items: [
+        { name: '小狗', emoji: '🐶', img: 'https://i.postimg.cc/9FG0yV4S/retouch-2026112115181703.jpg' },
+        { name: '小猫', emoji: '🐱', img: 'https://i.postimg.cc/yYJ5GYhr/retouch-2026112115260787.jpg' },
+        { name: '熊猫', emoji: '🐼', img: 'https://i.postimg.cc/tTCvNXCv/retouch-2026112115262685.jpg' }, 
+        { name: '老虎', emoji: '🐯', img: 'https://i.postimg.cc/DzCHDWNH/retouch-2026112115295910.jpg' },
+        { name: '兔子', emoji: '🐰', img: 'https://i.postimg.cc/qB9L7FvG/mmexport1795269898917.png ' },
+        { name: '狐狸', emoji: '🦊', img: 'https://i.postimg.cc/sgJ9wD4F/mmexport1795269895668.jpg ' },
+        { name: '考拉', emoji: '🐨', img: 'https://i.postimg.cc/Dy6RbF4y/mmexport1795272303214.png' }, 
+        { name: '青蛙', emoji: '🐸', img: 'https://i.postimg.cc/Hxmt2cFq/mmexport1795272307258.png' },
+        { name: '猴子', emoji: '🐵', img: 'https://i.postimg.cc/KcrHdFNH/mmexport1795272307795.png' }, 
+        { name: '企鹅', emoji: '🐧', img: 'https://i.postimg.cc/LsKk9g4n/mmexport1795272304829.png' },
+        { name: '小鸡', emoji: '🐤', img: 'https://i.postimg.cc/25FVv2hB/mmexport1795274809665.png' },
+        { name: '独角兽', emoji: '🦄', img: 'https://i.postimg.cc/Y9d0D0Xp/mmexport1795274808863.png' }
+      ]
+    },
+    {
+      name: '🖤🤍👿',
+      items: [
+        { name: '苹果', emoji: '🍎', img: 'https://i.postimg.cc/Tw9YyFr4/retouch-2026112121104126.jpg' }, 
+        { name: '香蕉', emoji: '🍌', img: 'https://i.postimg.cc/DfYk0n9P/retouch-2026112121110559.jpg' },
+        { name: '葡萄', emoji: '🍇', img: 'https://i.postimg.cc/m2zxFKRz/retouch-2026112121503051.jpg' },
+        { name: '草莓', emoji: '🍓', img: 'https://i.postimg.cc/BvCR005N/retouch-2026112121390425.jpg' },
+        { name: '西瓜', emoji: '🍉', img: 'https://i.postimg.cc/s2DP8dTZ/mmexport1795270530756.jpg ' }, 
+        { name: '橘子', emoji: '🍊', img: 'https://i.postimg.cc/1zC01CTP/mmexport1795270525703.jpg' },
+        { name: '桃子', emoji: '🍑', img: 'https://i.postimg.cc/pr8K82LZ/mmexport1795270523165.jpg' }, 
+        { name: '樱桃', emoji: '🍒', img: 'https://i.postimg.cc/02THLQS5/mmexport1795270531615.jpg' },
+        { name: '柠檬', emoji: '🍋', img: 'https://i.postimg.cc/Yq5yJ9Fv/mmexport1795270527143.jpg' }, 
+        { name: '菠萝', emoji: '🍍', img: 'https://i.postimg.cc/VNJy8T6f/mmexport1795272306206.png' },
+        { name: '椰子', emoji: '🥥', img: 'https://i.postimg.cc/KzTdKMth/mmexport1795272304474.png' }, 
+        { name: '蓝莓', emoji: '🫐', img: 'https://i.postimg.cc/Kjrwfh96/mmexport1795272304019.png' }
+      ]
+    }
+  ],
+  // 2048
+  g2048: [
+    { num: 2,    emoji: '', img: 'https://i.postimg.cc/9FG0yV4S/retouch-2026112115181703.jpg' }, 
+    { num: 4,    emoji: '', img: 'https://i.postimg.cc/yYJ5GYhr/retouch-2026112115260787.jpg' },
+    { num: 8,    emoji: '', img: 'https://i.postimg.cc/tTCvNXCv/retouch-2026112115262685.jpg' }, 
+    { num: 16,   emoji: '', img: 'https://i.postimg.cc/SRHZ4CLZ/retouch-2026112115292809.jpg' },
+    { num: 32,   emoji: '', img: 'https://i.postimg.cc/zXKmBGL7/retouch-2026112115275624.jpg' }, 
+    { num: 64,   emoji: '🦁', img: 'https://i.postimg.cc/tTTDV22B/retouch-2026112115273836.jpg' },
+    { num: 128,  emoji: '🐲', img: 'https://i.postimg.cc/DzCHDWNH/retouch-2026112115295910.jpg' },
+    { num: 256,  emoji: '👑', img: 'https://i.postimg.cc/28YfZ2cR/mmexport1795272309512.png' },
+    { num: 512,  emoji: '🔥', img: 'https://i.postimg.cc/VNJy8T6f/mmexport1795272306206.png' }, 
+    { num: 1024, emoji: '🌟', img: 'https://i.postimg.cc/KzTdKMth/mmexport1795272304474.png' },
+    { num: 2048, emoji: '🏆', img: 'https://i.postimg.cc/Kjrwfh96/mmexport1795272304019.png' }
+  ],
 
-  memory: {
-    back: { emoji:'❓' },
-    cards: [ {emoji:'☕'},{emoji:'🧁'},{emoji:'🍰'},{emoji:'🥐'},{emoji:'🥤'},{emoji:'🍪'},{emoji:'🍩'},{emoji:'🍬'} ],
-    /* 15 关：4 对 → 8 对，时间递减 */
-    levels: Array.from({ length: TOTAL_LEVELS }, function (_, i) {
-      const lv = i + 1;
-      return {
-        pairs:    Math.min(8, 4 + Math.floor((lv - 1) / 3)),    // 4 → 8 对
-        duration: Math.max(40, 70 - (lv - 1) * 2),              // 70 → 42 秒
-        reward:   8 + lv * 3
-      };
-    })
+  totalLevels: 323
+};
+
+/* ============================================================
+   工具函数 & 兜底图案
+   ============================================================ */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rndInt = n => Math.floor(Math.random() * n);
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=rndInt(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function makeArt(seed){
+  let s = (seed * 2654435761) >>> 0;
+  const rand = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  const hue  = Math.floor(rand() * 360);
+  const hue2 = (hue + 50 + Math.floor(rand() * 160)) % 360;
+  let shapes = '';
+  for (let i = 0; i < 16; i++){
+    const t = Math.floor(rand() * 3);
+    const x = rand() * 100, y = rand() * 100, r = 5 + rand() * 20;
+    const h = (hue + rand() * 220) % 360;
+    const op = (0.3 + rand() * 0.55).toFixed(2);
+    const lt = 45 + Math.floor(rand() * 30);
+    if (t === 0){
+      shapes += `<circle cx="${x.toFixed(1)}%" cy="${y.toFixed(1)}%" r="${r.toFixed(1)}%" fill="hsl(${h.toFixed(0)},80%,${lt}%)" opacity="${op}"/>`;
+    } else if (t === 1){
+      shapes += `<rect x="${x.toFixed(1)}%" y="${y.toFixed(1)}%" width="${(r*1.3).toFixed(1)}%" height="${(r*1.3).toFixed(1)}%" rx="6" fill="hsl(${h.toFixed(0)},85%,${lt}%)" opacity="${op}" transform="rotate(${(rand()*90).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;
+    } else {
+      const x2 = x + (rand()-0.5)*30, y2 = y + (rand()-0.5)*30, x3 = x + (rand()-0.5)*30, y3 = y + (rand()-0.5)*30;
+      shapes += `<polygon points="${x.toFixed(1)},${y.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)} ${x3.toFixed(1)},${y3.toFixed(1)}" fill="hsl(${h.toFixed(0)},85%,${lt}%)" opacity="${op}"/>`;
+    }
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="hsl(${hue},68%,22%)"/>
+        <stop offset="55%" stop-color="hsl(${(hue+hue2)/2|0},72%,38%)"/>
+        <stop offset="100%" stop-color="hsl(${hue2},82%,55%)"/>
+      </linearGradient>
+    </defs>
+    <rect width="100" height="100" fill="url(#g)"/>
+    ${shapes}
+  </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+function getPuzzleImage(level){
+  const arr = ASSETS.puzzle;
+  if (arr && arr.length >= level && arr[level - 1]) return arr[level - 1];
+  return makeArt(level * 13 + 7);
+}
+
+/* ============================================================
+   持久化
+   ============================================================ */
+const STORE_KEY = 'perthsanta_save_v2';
+const Persist = {
+  progress: {},
+  load(){
+    try{
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw){
+        const d = JSON.parse(raw);
+        this.progress = d.progress || {};
+      }
+    }catch(e){}
   },
-
-  shop: {
-    accessories: [
-      { id:'',      emoji:'🚫', price:0 },  { id:'bow',    emoji:'🎀', price:20 },
-      { id:'crown', emoji:'👑', price:35 }, { id:'hat',    emoji:'🎩', price:30 },
-      { id:'flower',emoji:'🌸', price:15 }, { id:'star',   emoji:'⭐', price:25 }
-    ],
-    themes: [
-      { id:'pink',  name:'温馨粉', bg:'linear-gradient(135deg,#fef6f0,#fce8ef)', accent:'#ff8fab', soft:'#ffe0ea', text:'#7a4a5a', price:0 },
-      { id:'blue',  name:'清新蓝', bg:'linear-gradient(135deg,#eef7ff,#e0eeff)', accent:'#6f9fe0', soft:'#dceafd', text:'#3f5f88', price:40 },
-      { id:'green', name:'奶油绿', bg:'linear-gradient(135deg,#f3fbf2,#e2f5e4)', accent:'#74bb82', soft:'#dcf0e0', text:'#3f6b4c', price:40 }
-    ]
+  save(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify({ progress: this.progress })); }catch(e){}
   }
 };
-/* ★★★ 配置区结束 ★★★ */
+Persist.load();
+/* ============================================================
+   背景系统
+   ============================================================ */
+const BGSystem = {
+  init(){
+    // 1. 先读取独立保存的背景记录
+    const savedBg = localStorage.getItem('perthsanta_bg');
+    
+    if (savedBg) {
+      try {
+        const b = JSON.parse(savedBg);
+        $('#bg-layer').style.backgroundImage = b.image;
+        $('#bg-overlay').style.background = `rgba(7,6,15,${b.dim})`;
+        $('#bg-layer').style.filter = `blur(${b.blur}px)`;
+        
+        $('#bg-blur').value = b.blur;
+        $('#bg-blur-val').textContent = b.blur + 'px';
+        $('#bg-dim').value = b.dim * 100;
+        $('#bg-dim-val').textContent = (b.dim * 100) + '%';
+      } catch(e) {}
+    } else {
+      // 如果没有记录，用代码顶部的默认配置
+      if (GAME_CONFIG.backgroundImage) {
+        $('#bg-layer').style.backgroundImage = `url("${GAME_CONFIG.backgroundImage}")`;
+        $('#bg-layer').style.backgroundColor = '#000';
+      }
+      $('#bg-overlay').style.background = `rgba(7,6,15,${GAME_CONFIG.overlayOpacity})`;
+    }
+    
+    // 2. 渲染面板 UI
+    const presetsEl = $('#bg-presets');
+    presetsEl.innerHTML = [
+      { name:'星夜',   value:'linear-gradient(135deg,#0b0a14,#1a1140 45%,#2a0f30)' },
+      { name:'樱粉',   value:'linear-gradient(135deg,#2a0f1f,#4a1436 50%,#7a1f4d)' },
+      { name:'深海',   value:'linear-gradient(135deg,#031225,#08304d 50%,#0d5470)' },
+      { name:'暮光',   value:'linear-gradient(135deg,#1a0b2e,#3d1060 50%,#6a1b9a)' },
+      { name:'翡翠',   value:'linear-gradient(135deg,#04140f,#0a3a2a 50%,#116b4a)' },
+      { name:'落日',   value:'linear-gradient(135deg,#2b0a0a,#6b1a1a 45%,#c2531a)' },
+      { name:'石墨',   value:'linear-gradient(135deg,#0d0d0d,#1c1c22 50%,#2b2b33)' },
+      { name:'极光',   value:'linear-gradient(135deg,#071a2e,#0e3b4a 35%,#1a6b5c 70%,#2a2f7a)' },
+    ].map((p, i) => `<button class="bg-preset" data-i="${i}" style="background:${p.value}" title="${p.name}"></button>`).join('');
 
+
+    // 3. 定义保存函数
+    function saveBg() {
+      const b = {
+        image: $('#bg-layer').style.backgroundImage,
+        blur: parseInt($('#bg-blur').value) || 0,
+        dim: (parseInt($('#bg-dim').value) || 35) / 100
+      };
+      localStorage.setItem('perthsanta_bg', JSON.stringify(b)); // 直接存入本地
+    }
+
+    // 4. 绑定各种操作事件，只要变了就触发保存
+    presetsEl.onclick = e => {
+      const el = e.target.closest('.bg-preset');
+      if (!el) return;
+      $('#bg-layer').style.backgroundImage = el.style.background;
+      toast('背景已切换');
+      saveBg();
+    };
+
+    $('#bg-blur').oninput = e => { 
+      $('#bg-layer').style.filter = `blur(${e.target.value}px)`; 
+      $('#bg-blur-val').textContent = e.target.value + 'px'; 
+      saveBg(); 
+    };
+    
+    $('#bg-dim').oninput = e => { 
+      $('#bg-overlay').style.background = `rgba(7,6,15,${(e.target.value/100)})`; 
+      $('#bg-dim-val').textContent = e.target.value + '%'; 
+      saveBg(); 
+    };
+
+    $('#bg-url-apply').onclick = () => {
+      const v = $('#bg-url').value.trim();
+      if (!v) return;
+      $('#bg-layer').style.backgroundImage = `url("${v}")`;
+      toast('背景已更新');
+      saveBg();
+    };
+    
+    $('#bg-upload-btn').onclick = () => $('#bg-upload').click();
+    $('#bg-upload').onchange = e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = ev => { 
+        $('#bg-layer').style.backgroundImage = `url("${ev.target.result}")`; 
+        toast('图片已应用'); 
+        saveBg(); 
+      };
+      reader.readAsDataURL(f);
+    };
+
+    // 5. “恢复默认”按钮：清空本地记忆并复原
+    $('#bg-reset').onclick = () => {
+      localStorage.removeItem('perthsanta_bg'); // 删掉记录
+      
+      if (GAME_CONFIG.backgroundImage) {
+        $('#bg-layer').style.backgroundImage = `url("${GAME_CONFIG.backgroundImage}")`;
+      } else {
+        $('#bg-layer').style.backgroundImage = 'linear-gradient(135deg,#0b0a14,#1a1140 50%,#2a0f30)';
+      }
+      
+      $('#bg-blur').value = 0;
+      $('#bg-blur-val').textContent = '0px';
+      $('#bg-layer').style.filter = 'blur(0px)';
+      
+      $('#bg-dim').value = GAME_CONFIG.overlayOpacity * 100;
+      $('#bg-dim-val').textContent = (GAME_CONFIG.overlayOpacity * 100) + '%';
+      $('#bg-overlay').style.background = `rgba(7,6,15,${GAME_CONFIG.overlayOpacity})`;
+      toast('已恢复默认');
+    };
+
+    // 关闭面板
+    $('#bg-close').onclick = () => $('#settings-panel').classList.remove('open');
+    $('#settings-mask').onclick = () => $('#settings-panel').classList.remove('open');
+  },
+  
+  open(){ $('#settings-panel').classList.add('open'); }
+};
+
+  /* ============================================================
+   通用弹窗 & UI
+   ============================================================ */
+function showModal({ emoji='🎉', title='', text='', buttons=[] }){
+  $('#modal-emoji').textContent = emoji;
+  $('#modal-title').textContent = title;
+  $('#modal-text').innerHTML = text;
+  const btnsEl = $('#modal-btns');
+  btnsEl.innerHTML = '';
+  buttons.forEach(b => {
+    const el = document.createElement('button');
+    el.className = b.cls || 'btn-primary';
+    el.textContent = b.label;
+    el.onclick = () => { closeModal(); b.onClick && b.onClick(); };
+    btnsEl.appendChild(el);
+  });
+  $('#modal').classList.add('open');
+}
+function closeModal(){ $('#modal').classList.remove('open'); }
+
+let toastTimer = null;
+function toast(msg){
+  let el = document.getElementById('toast');
+  if (!el){
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.style.cssText = 'position:fixed;left:50%;bottom:15%;transform:translateX(-50%);background:rgba(30,20,50,.95);border:1px solid rgba(255,255,255,.15);padding:12px 22px;border-radius:14px;font-size:13px;z-index:200;transition:opacity .3s,transform .3s;pointer-events:none;letter-spacing:.05em;box-shadow:0 10px 40px rgba(0,0,0,.5)';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  el.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-50%) translateY(10px)';
+  }, 1600);
+}
+
+function showScreen(id){
+  $$('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = '';
+}
+/* ============================================================
+   主页 & 关卡
+   ============================================================ */
 const GAMES = [
-  { id:'match3', icon:'🎁', title:'开心消消乐' },
-  { id:'whack',  icon:'🎬', title:'片场大作战' },
-  { id:'memory', icon:'☕', title:'记忆配对' }
+  { id:'match3', name:'开心消消乐', icon:'🍬', color:'rgba(255,110,199,.35)' },
+  { id:'puzzle', name:'拼　图',     icon:'🧩', color:'rgba(120,200,255,.35)' },
+  { id:'memory', name:'记忆卡片',   icon:'🃏', color:'rgba(255,212,121,.35)' },
 ];
 
-const STORE = 'psd_home_v2';
-const $ = function (id) { return document.getElementById(id); };
+function renderHome(){
+  const grid = $('#game-grid');
+  grid.innerHTML = GAMES.map(g => {
+    const done = Persist.progress[g.id] || 0;
+    const pct = (done / ASSETS.totalLevels * 100).toFixed(1);
+    return `<button class="game-card" data-game="${g.id}" style="--c:${g.color}">
+      <div class="icon">${g.icon}</div>
+      <div class="name">${g.name}</div>
+      <div class="prog">已通过 ${done} / ${ASSETS.totalLevels} 关</div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+    </button>`;
+  }).join('');
 
-function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-function shuffle(a) {
-  const r = a.slice();
-  for (let i = r.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const t = r[i]; r[i] = r[j]; r[j] = t;
-  }
-  return r;
-}
-function clearEl(el) { while (el.firstChild) el.removeChild(el.firstChild); }
-function makeIcon(spec, cls) {
-  if (spec && spec.img) {
-    const i = document.createElement('img');
-    i.src = spec.img; i.className = cls || 'tile-img'; i.draggable = false;
-    return i;
-  }
-  return document.createTextNode(spec && spec.emoji ? spec.emoji : '');
-}
-  
-/* ---------------- 存档 ---------------- */
-function defaultState() {
-  return {
-    names: { perth:'Perth', santa:'Santa', domiia:'Domiia' },
-    coins: 0,
-    mood: { perth:80, santa:80, domiia:80 },
-    acc: { perth:'', santa:'', domiia:'' },
-    theme: 'pink',
-    ownedAcc: [''], ownedThemes: ['pink'],
-    level: { match3:1, whack:1, memory:1 },
-    best: { match3:0, whack:0, memory:0 },
-    tutorialDone: false
+  grid.onclick = e => {
+    const card = e.target.closest('.game-card');
+    if (!card) return;
+    openLevels(card.dataset.game);
   };
 }
-let state = defaultState();
 
-function load() {
-  try {
-    const raw = localStorage.getItem(STORE);
-    if (!raw) return;
-    const s = JSON.parse(raw);
-    if (!s) return;
-    const base = defaultState();
-    state = Object.assign(base, s);
-    state.names = Object.assign(base.names, s.names || {});
-    state.mood  = Object.assign(base.mood,  s.mood  || {});
-    state.acc   = Object.assign(base.acc,   s.acc   || {});
-    state.level = Object.assign(base.level, s.level || {});
-    state.best  = Object.assign(base.best,  s.best  || {});
-    state.ownedAcc = s.ownedAcc || [''];
-    state.ownedThemes = s.ownedThemes || ['pink'];
-  } catch (e) {}
-}
-function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
+let currentGameId = null;
 
-/* ---------------- 主题 & 金币 ---------------- */
-function applyTheme() {
-  const t = DEV_CONFIG.shop.themes.find(function (x) { return x.id === state.theme; }) || DEV_CONFIG.shop.themes[0];
-  document.documentElement.style.setProperty('--accent', t.accent);
-  document.documentElement.style.setProperty('--soft',   t.soft);
-  document.documentElement.style.setProperty('--text',   t.text);
-  document.documentElement.style.setProperty('--muted',  t.text + 'aa');
-  document.body.style.background = t.bg;
-}
-function addCoins(n) { state.coins = Math.max(0, state.coins + n); save(); refreshHUD(); }
+function openLevels(gameId){
+  currentGameId = gameId;
+  const g = GAMES.find(x => x.id === gameId);
+  $('#levels-title').textContent = g.name;
 
-function refreshHUD() {
-  $('coinDisplay').textContent = state.coins;
-  const mini = $('moodMini'); clearEl(mini);
-  Object.values(DEV_CONFIG.characters).forEach(function (ch) {
-    const d = document.createElement('div'); d.className = 'mood-dot';
-    d.innerHTML = '<span class="m">' + ch.emoji + '</span>' + state.mood[ch.key];
-    mini.appendChild(d);
-  });
-  renderFamilyStrip();
-}
+  const doneCount = Persist.progress[gameId] || 0;
+  const maxUnlocked = doneCount + 1;
 
-/* ---------------- 世界地图 ---------------- */
-function renderMap() {
-  const grid = $('mapGrid'); clearEl(grid);
-  DEV_CONFIG.rooms.forEach(function (room) {
-    const d = document.createElement('div'); d.className = 'room-card';
-    d.innerHTML =
-      '<div class="room-icon">' + room.icon + '</div>' +
-      '<div class="room-name">' + esc(room.name) + '</div>' +
-      '<div class="room-desc">' + esc(room.desc) + '</div>' +
-      (room.id === 'game' ? '<div class="room-badge">3 游戏 · 15 关</div>' : '');
-    d.addEventListener('click', function () { enterRoom(room.id); });
-    grid.appendChild(d);
-  });
-}
-
-function renderFamilyStrip() {
-  const strip = $('familyStrip'); if (!strip) return;
-  clearEl(strip);
-  Object.values(DEV_CONFIG.characters).forEach(function (ch) {
-    const d = document.createElement('div'); d.className = 'fam-mini';
-    d.innerHTML =
-      '<div class="face">' + ch.emoji + '</div>' +
-      '<div class="name">' + esc(state.names[ch.key]) + '</div>' +
-      '<div class="mood-bar"><div class="mood-fill" style="width:' + state.mood[ch.key] + '%"></div></div>';
-    d.addEventListener('click', function () {
-      showToast(state.names[ch.key] + '：' + pickLine(ch.key, 'living'));
-    });
-    strip.appendChild(d);
-  });
-}
-/* ---------------- 台词 ---------------- */
-const LINE_POOL = {
-  perth: {
-    living:  ['今天也要照顾好{n2}呀～','一家人在一起真好～','有点困……但看到你们就精神了'],
-    bedroom: ['呼……好想睡一会儿','你们先玩，我躺一下'],
-    kitchen: ['晚上想吃什么？','我来帮忙吧～'],
-    game:    ['来一局？','输了不许哭哦～']
-  },
-  santa: {
-    living:  ['{n2}乖，爸爸在呢','日常就是最幸福的呀'],
-    bedroom: ['整理一下房间～','床单要铺平才行'],
-    kitchen: ['今天做顿好吃的！','谁来帮我尝味道？'],
-    game:    ['我超厉害的！','来比一比？']
-  },
-  domiia: {
-    living:  ['咿呀～','要抱抱！','嘿嘿嘿～'],
-    bedroom: ['想睡觉觉……','讲故事嘛～'],
-    kitchen: ['饿饿！','闻起来好香～'],
-    game:    ['玩！玩！','嘿嘿，到我啦！']
+  let html = '';
+  for (let i = 1; i <= ASSETS.totalLevels; i++){
+    const locked = i > maxUnlocked;
+    const done = i <= doneCount;
+    const current = i === maxUnlocked && !locked;
+    const cls = ['lvl'];
+    if (locked) cls.push('locked');
+    if (done) cls.push('done');
+    if (current) cls.push('current');
+    html += `<button class="${cls.join(' ')}" data-lvl="${i}" ${locked ? 'disabled' : ''}>${i}</button>`;
   }
-};
-function pickLine(key, room) {
-  const pool = (LINE_POOL[key] && LINE_POOL[key][room]) || ['……'];
-  let s = pool[Math.floor(Math.random() * pool.length)];
-  return s
-    .replace(/\{n1\}/g, state.names.perth)
-    .replace(/\{n2\}/g, state.names.domiia)
-    .replace(/\{n3\}/g, state.names.santa);
+  $('#level-grid').innerHTML = html;
+  $('#level-grid').onclick = e => {
+    const btn = e.target.closest('.lvl');
+    if (!btn || btn.disabled) return;
+    startLevel(gameId, +btn.dataset.lvl);
+  };
+  showScreen('levels');
+                             }
+  /* ============================================================
+   游戏调度
+   ============================================================ */
+const G = {};
+let activeGame = null;
+
+function stopActiveGame(){
+  if (activeGame && typeof activeGame.stop === 'function'){
+    try { activeGame.stop(); } catch(e){}
+  }
+  activeGame = null;
 }
 
-/* ---------------- 房间 ---------------- */
-let roomSpeechTimer = null;
+function startLevel(gameId, level){
+  stopActiveGame();
+  const g = GAMES.find(x => x.id === gameId);
+  $('#play-title').textContent = `${g.name} · 第 ${level} 关`;
+  const area = $('#play-area');
+  area.innerHTML = '';
+  showScreen('play');
+  currentGameId = gameId;
+  activeGame = G[gameId];
+  G[gameId].start(level, area, gameId);
+}
+function onLevelWin(){
+  const gameId = currentGameId;
+  const level = window.__currentLevel;
+  const prev = Persist.progress[gameId] || 0;
+  if (level >= prev + 1){
+    Persist.progress[gameId] = level;
+    Persist.save();
+  }
+  const isLast = level >= ASSETS.totalLevels;
+  showModal({
+    emoji: isLast ? '👑' : '🎉',
+    title: isLast ? '全部通关！' : '过关！',
+    text: isLast ? `你已完成全部 ${ASSETS.totalLevels} 关！<br>我们永远同在 ❤️` : `第 ${level} 关完成，继续挑战下一关吧！`,
+    buttons: isLast
+      ? [
+          { label:'返回主页', cls:'btn-primary', onClick: () => { stopActiveGame(); renderHome(); showScreen('home'); } },
+          { label:'重玩本关', cls:'btn-secondary', onClick: () => startLevel(gameId, level) },
+        ]
+      : [
+          { label:'下一关', cls:'btn-primary', onClick: () => startLevel(gameId, level + 1) },
+          { label:'重玩',   cls:'btn-secondary', onClick: () => startLevel(gameId, level) },
+        ]
+  });
+}
+
+function onLevelLose(text){
+  const gameId = currentGameId;
+  const level = window.__currentLevel;
+  showModal({
+    emoji: '😢',
+    title: '差一点点',
+    text: text || '再试一次吧！',
+    buttons: [
+      { label:'重试', cls:'btn-primary', onClick: () => startLevel(gameId, level) },
+      { label:'返回', cls:'btn-secondary', onClick: () => { stopActiveGame(); openLevels(gameId); } },
+    ]
+  });
+}
+
+/* ==========================================================================
+   游戏 1：开心消消乐 (已修复死局Bug)
+   ========================================================================== */
+function getMatch3TileHtml(v) {
+  const item = ASSETS.match3[v % ASSETS.match3.length];
+  if (item.img) return `<img src="${item.img}" onerror="this.outerHTML='${item.emoji}'">`;
+  return item.emoji;
+}
+
+function findMatches(grid, rows, cols){
+  const out = new Set();
+  for (let r = 0; r < rows; r++){
+    let run = 1;
+    for (let c = 1; c <= cols; c++){
+      const same = c < cols && grid[r][c] !== null && grid[r][c-1] !== null && grid[r][c] === grid[r][c-1];
+      if (same) run++;
+      else {
+        if (run >= 3) for (let k = c - run; k < c; k++) out.add(r * cols + k);
+        run = 1;
+      }
+    }
+  }
+  for (let c = 0; c < cols; c++){
+    let run = 1;
+    for (let r = 1; r <= rows; r++){
+      const same = r < rows && grid[r][c] !== null && grid[r-1][c] !== null && grid[r][c] === grid[r-1][c];
+      if (same) run++;
+      else {
+        if (run >= 3) for (let k = r - run; k < r; k++) out.add(k * cols + c);
+        run = 1;
+      }
+    }
+  }
+  return out;
+}
+G.match3 = {
+  level: 1, rows: 6, cols: 6, colors: 5,
+  grid: [], sel: null, moves: 0, target: 0, score: 0,
+  busy: false, over: false, boardEl: null, areaEl: null, gameId: 'match3',
   
-function enterRoom(roomId) {
-  $('screen-world').classList.remove('active');
-  $('screen-room').classList.add('active');
-  const room = DEV_CONFIG.rooms.find(function (r) { return r.id === roomId; });
-  $('roomTitle').textContent = room.icon + ' ' + room.name;
-  renderRoom(room);
-}
+  startR: -1, startC: -1, startX: 0, startY: 0,
 
-function accEmoji(id) {
-  const a = DEV_CONFIG.shop.accessories.find(function (x) { return x.id === id; });
-  return a ? a.emoji : '';
-}
+  start(level, area, gameId){
+    this.gameId = gameId;
+    window.__currentLevel = level;
+    this.level = level;
+    this.areaEl = area;
+    this.cols = Math.min(8, 5 + Math.floor(level / 12));
+    this.rows = this.cols;
+    this.colors = ASSETS.match3.length;
+    this.moves = Math.max(15, 28 - Math.floor(level / 4));
+    this.target = 300 + level * 40;
+    this.score = 0;
+    this.sel = null;
+    this.busy = false;
+    this.over = false;
+    this.initGrid();
 
-function renderRoom(room) {
-  const stage = $('roomStage'); clearEl(stage);
-  const bg = document.createElement('div'); bg.className = 'scene-bg'; bg.style.background = room.bg;
-  stage.appendChild(bg);
+    area.innerHTML = `
+      <div class="hud-row">
+        <div class="hud-pill">分数 <b id="m3-score">0</b></div>
+        <div class="hud-pill">目标 <b id="m3-target">${this.target}</b></div>
+        <div class="hud-pill" id="m3-moves-pill">步数 <b id="m3-moves">${this.moves}</b></div>
+      </div>
+      <div class="m3-board" id="m3-board"></div>
+      <p style="margin-top:14px;font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-align:center">滑动或点击相邻两颗宝石进行交换</p>`;
 
-  const line = document.createElement('div'); line.className = 'char-line';
-  Object.values(DEV_CONFIG.characters).forEach(function (ch) {
-    const d = document.createElement('div'); d.className = 'big-fam';
-    const accHTML = state.acc[ch.key] ? '<div class="acc">' + accEmoji(state.acc[ch.key]) + '</div>' : '';
-    d.innerHTML = accHTML +
-      '<div class="face">' + (ch.img ? '<img src="' + ch.img + '" alt="">' : ch.emoji) + '</div>' +
-      '<div class="name">' + esc(state.names[ch.key]) + '</div>' +
-      '<div class="mood-tag">心情 ' + state.mood[ch.key] + '</div>';
-    d.addEventListener('click', function () {
-      state.mood[ch.key] = Math.min(100, state.mood[ch.key] + 5);
-      addCoins(2);
-      showRoomSpeech(state.names[ch.key] + '：' + pickLine(ch.key, room.id));
-      d.querySelector('.mood-tag').textContent = '心情 ' + state.mood[ch.key];
-    });
-    line.appendChild(d);
-  });
-  stage.appendChild(line);
+    this.boardEl = area.querySelector('#m3-board');
+    this.boardEl.style.gridTemplateColumns = `repeat(${this.cols},1fr)`;
+    this.boardEl.style.fontSize = `calc(min(88vw, 420px) / ${this.cols} * 0.5)`;
+    
+    this._onPointerDown = (e) => {
+      if (this.busy || this.over) return;
+      const t = e.target.closest('.m3-tile');
+      if (!t) return;
+      this.startR = +t.dataset.r;
+      this.startC = +t.dataset.c;
+      this.startX = e.clientX;
+      this.startY = e.clientY;
+    };
 
-  const sp = document.createElement('div'); sp.className = 'speech-box'; sp.id = 'roomSpeech';
-  stage.appendChild(sp);
-
-  if (room.id === 'game') {
-    const wrap = document.createElement('div'); wrap.className = 'room-games';
-    GAMES.forEach(function (g) {
-      const cfg = DEV_CONFIG[g.id];
-      const total = cfg.levels.length;
-      const unlocked = Math.min(state.level[g.id] || 1, total);
-      const cleared = (state.level[g.id] || 1) > total;
-      const card = document.createElement('button'); card.className = 'room-game-card';
-      card.innerHTML =
-        '<span class="rg-icon">' + g.icon + '</span>' +
-        '<div class="rg-body">' +
-          '<div class="rg-title">' + esc(g.title) + '</div>' +
-          '<div class="rg-desc">' + (cleared ? '✅ 全部通关' : '已解锁 第 ' + unlocked + ' / ' + total + ' 关') + '</div>' +
-        '</div>' +
-        '<span class="rg-arrow">›</span>';
-      card.addEventListener('click', function () { openLevelSelect(g.id); });
-      wrap.appendChild(card);
-    });
-    stage.appendChild(wrap);
-  }
-}
-
-function showRoomSpeech(text) {
-  const el = $('roomSpeech'); if (!el) return;
-  el.textContent = text; el.classList.add('show');
-  clearTimeout(roomSpeechTimer);
-  roomSpeechTimer = setTimeout(function () { el.classList.remove('show'); }, 2200);
-}
-
-$('btnBackMap').addEventListener('click', function () {
-  $('screen-room').classList.remove('active');
-  $('screen-world').classList.add('active');
-  refreshHUD();
-});
-/* ---------------- 关卡选择 ---------------- */
-function openLevelSelect(gameId) {
-  const cfg = DEV_CONFIG[gameId];
-  const total = cfg.levels.length;
-  const unlocked = Math.min(state.level[gameId] || 1, total);
-
-  let html = '<div class="lv-grid">';
-  for (let i = 1; i <= total; i++) {
-    const lv = cfg.levels[i - 1];
-    const ok = i <= unlocked;
-    const cleared = i < (state.level[gameId] || 1);
-    const meta = lv.target != null ? ('目标 ' + lv.target) : (lv.pairs + ' 对');
-    html += '<button class="lv-btn' + (ok ? '' : ' locked') + (cleared ? ' cleared' : '') + '" ' +
-      'data-lv="' + i + '" ' + (ok ? '' : 'disabled') + '>' +
-      '<span class="lv-num">' + i + '</span>' +
-      '<span class="lv-meta">' + meta + '</span>' +
-      '</button>';
-  }
-  html += '</div>';
-
-  const g = GAMES.find(function (x) { return x.id === gameId; });
-  showModal(g.icon + ' ' + g.title + ' · 选择关卡', html, [
-    { text: '关闭', onClick: closeModal }
-  ]);
-
-  $('modalBody').querySelectorAll('.lv-btn:not(.locked)').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      const lv = parseInt(btn.dataset.lv, 10);
-      closeModal();
-      startGame(gameId, lv);
-    });
-  });
-}
-
-  /* ---------------- 游戏框架 ---------------- */
-let activeCleanup = null;
-
-function stopActive() {
-  if (activeCleanup) { try { activeCleanup(); } catch (e) {} activeCleanup = null; }
-}
-
-function startGame(gameId, level) {
-  stopActive(); closeModal();
-  $('screen-room').classList.remove('active');
-  $('screen-game').classList.add('active');
-  $('gameArea').innerHTML = '';
-  $('gameBottom').innerHTML = '';
-  $('gameScore').textContent = '0';
-
-  const g = GAMES.find(function (x) { return x.id === gameId; });
-  $('gameTitle').textContent = g.icon + ' ' + g.title;
-
-  if (gameId === 'match3') startMatch3(level);
-  else if (gameId === 'whack') startWhack(level);
-  else startMemory(level);
-}
-
-function backToRoom() {
-  stopActive(); closeModal();
-  $('screen-game').classList.remove('active');
-  $('screen-room').classList.add('active');
-  $('gameArea').innerHTML = '';
-  $('gameBottom').innerHTML = '';
-  renderRoom(DEV_CONFIG.rooms.find(function (r) { return r.id === 'game'; }));
-}
-$('btnBackRoom').addEventListener('click', backToRoom);
-
-/* 关卡结算 */
-function finishLevel(gameId, level, score, passed) {
-  const cfg = DEV_CONFIG[gameId];
-  const total = cfg.levels.length;
-  const lv = cfg.levels[level - 1];
-
-  if (score > state.best[gameId]) state.best[gameId] = score;
-
-  if (passed) {
-    const curUnlock = state.level[gameId] || 1;
-    const isNew = level >= curUnlock;
-    const reward = isNew ? lv.reward : Math.floor(lv.reward / 2);
-
-    addCoins(reward);
-
-    if (level >= curUnlock) {
-      state.level[gameId] = Math.min(total + 1, level + 1);
-    }
-    save();
-
-    const nextUnlocked = state.level[gameId] > level && level < total;
-
-    if (level < total) {
-      showModal('🎉 第 ' + level + ' 关通过！',
-        '<p>得分 <b>' + score + '</b>，获得 <b>' + reward + ' 🪙</b></p>' +
-        (isNew ? '<p>第 ' + (level + 1) + ' 关已解锁！</p>' : '<p>重玩奖励减半，继续挑战下一关吧～</p>'),
-        [
-          { text: '返回房间', onClick: function () { closeModal(); backToRoom(); } },
-          { text: nextUnlocked ? '下一关' : '重玩本关', primary: true,
-            onClick: function () { closeModal(); startGame(gameId, nextUnlocked ? level + 1 : level); } }
-        ]);
-    } else {
-      showModal('🏆 全部通关！',
-        '<p>最后一关得分 <b>' + score + '</b>，获得 <b>' + reward + ' 🪙</b></p>' +
-        '<p>三个小游戏都通关啦，可以随时回来重玩～</p>',
-        [{ text: '返回房间', primary: true, onClick: function () { closeModal(); backToRoom(); } }]);
-    }
-  } else {
-    save();
-    showModal('😢 差一点点',
-      '<p>得分 <b>' + score + '</b>' + (lv.target != null ? '，目标 ' + lv.target : '') + '</p>' +
-      '<p>再来一次一定可以的！</p>',
-      [
-        { text: '返回房间', onClick: function () { closeModal(); backToRoom(); } },
-        { text: '再试一次', primary: true, onClick: function () { closeModal(); startGame(gameId, level); } }
-      ]);
-  }
-}
-
-function makeGameBottom(gameId, level) {
-  const b = $('gameBottom'); clearEl(b);
-  const again = document.createElement('button'); again.className = 'btn primary'; again.textContent = '重新开始';
-  again.style.marginRight = '8px';
-  again.addEventListener('click', function () { startGame(gameId, level); });
-  const back = document.createElement('button'); back.className = 'btn'; back.textContent = '返回房间';
-  back.addEventListener('click', backToRoom);
-  b.appendChild(again); b.appendChild(back);
-}
-
-/* ---------------- 消消乐 ---------------- */
-function startMatch3(level) {
-  const cfg = DEV_CONFIG.match3;
-  const lv = cfg.levels[level - 1];
-  const R = 6, C = 6;
-
-  $('gameInfo').textContent = '第 ' + level + '/' + cfg.levels.length + ' 关 · 目标 ' + lv.target + ' 分 · ' + lv.duration + ' 秒';
-  makeGameBottom('match3', level);
-
-  let run = true, busy = false, sel = null, score = 0, time = lv.duration, board = [];
-  const cells = [];
-
-  const grid = document.createElement('div'); grid.className = 'm3-grid'; $('gameArea').appendChild(grid);
-  for (let r = 0; r < R; r++) {
-    cells[r] = [];
-    for (let c = 0; c < C; c++) {
-      (function (rr, cc) {
-        const d = document.createElement('div'); d.className = 'm3-cell';
-        d.addEventListener('click', function () { click(rr, cc); });
-        grid.appendChild(d); cells[rr][cc] = d;
-      })(r, c);
-    }
-  }
-
-  function rand() { return cfg.tiles[Math.floor(Math.random() * cfg.tiles.length)]; }
-  function same(a, b) { return a && b && a.id === b.id; }
-  function render() {
-    for (let r = 0; r < R; r++) {
-      for (let c = 0; c < C; c++) {
-        const d = cells[r][c];
-        clearEl(d);
-        if (board[r][c]) d.appendChild(makeIcon(board[r][c]));
-        d.classList.toggle('sel', !!sel && sel[0] === r && sel[1] === c);
+    this._onPointerUp = (e) => {
+      if (this.busy || this.over) return;
+      if (this.startR === -1) return;
+      
+      const dx = e.clientX - this.startX;
+      const dy = e.clientY - this.startY;
+      const dist = Math.hypot(dx, dy);
+      
+      let targetR = this.startR;
+      let targetC = this.startC;
+      
+      if (dist > 20) {
+        if (Math.abs(dx) > Math.abs(dy)) targetC += dx > 0 ? 1 : -1;
+        else targetR += dy > 0 ? 1 : -1;
+      } else {
+        const t = e.target.closest('.m3-tile');
+        if (t) {
+          targetR = +t.dataset.r;
+          targetC = +t.dataset.c;
+        }
       }
-    }
-  }
+const isSame = targetR === this.startR && targetC === this.startC;
+      const isAdj = Math.abs(targetR - this.startR) + Math.abs(targetC - this.startC) === 1;
 
-  function find() {
-    const s = new Set();
-    for (let r = 0; r < R; r++) {
-      let n = 1;
-      for (let c = 1; c <= C; c++) {
-        const ok = c < C && same(board[r][c], board[r][c - 1]);
-        if (ok) n++;
-        else { if (n >= 3) for (let k = c - n; k < c; k++) s.add(r + ',' + k); n = 1; }
+      if (isAdj && targetR >= 0 && targetR < this.rows && targetC >= 0 && targetC < this.cols) {
+        this.sel = null;
+        this.trySwap({r: this.startR, c: this.startC}, {r: targetR, c: targetC});
+      } else if (isSame) {
+        if (this.sel && this.sel.r === this.startR && this.sel.c === this.startC) {
+          this.sel = null;
+        } else {
+          this.sel = {r: this.startR, c: this.startC};
+        }
+        this.render();
       }
+      this.startR = -1;
+    };
+
+    this.boardEl.addEventListener('pointerdown', this._onPointerDown);
+    this.boardEl.addEventListener('pointerup', this._onPointerUp);
+    this.render();
+  },
+
+  stop(){
+    if (this.boardEl) {
+      this.boardEl.removeEventListener('pointerdown', this._onPointerDown);
+      this.boardEl.removeEventListener('pointerup', this._onPointerUp);
     }
-    for (let c = 0; c < C; c++) {
-      let n = 1;
-      for (let r = 1; r <= R; r++) {
-        const ok = r < R && same(board[r][c], board[r - 1][c]);
-        if (ok) n++;
-        else { if (n >= 3) for (let k = r - n; k < r; k++) s.add(k + ',' + c); n = 1; }
+    this.over = true;
+    this.busy = true;
+  },
+  initGrid(){
+    let guard = 0;
+    do {
+      this.grid = [];
+      for (let r = 0; r < this.rows; r++){
+        this.grid[r] = [];
+        for (let c = 0; c < this.cols; c++){
+          let v, badGuard = 0;
+          do { v = rndInt(this.colors); badGuard++; }
+          while (badGuard < 60 && this._bad(r, c, v));
+          this.grid[r][c] = v;
+        }
       }
-    }
-    return s;
-  }
+      guard++;
+    } while (guard < 100 && !this.hasValidMove()); // 确保初始棋盘有解
+  },
 
-  function sw(a, b, c, d) { const t = board[a][b]; board[a][b] = board[c][d]; board[c][d] = t; }
+  _bad(r, c, v){
+    if (c >= 2 && this.grid[r][c-1] === v && this.grid[r][c-2] === v) return true;
+    if (r >= 2 && this.grid[r-1][c] === v && this.grid[r-2][c] === v) return true;
+    return false;
+  },
 
-  function drop() {
-    for (let c = 0; c < C; c++) {
-      const rem = [];
-      for (let r = R - 1; r >= 0; r--) if (board[r][c]) rem.push(board[r][c]);
-      for (let r = R - 1, i = 0; r >= 0; r--, i++) board[r][c] = i < rem.length ? rem[i] : rand();
-    }
-  }
-
-  function hasMove() {
-    for (let r = 0; r < R; r++) {
-      for (let c = 0; c < C; c++) {
-        if (c + 1 < C) { sw(r, c, r, c + 1); const ok = find().size > 0; sw(r, c, r, c + 1); if (ok) return true; }
-        if (r + 1 < R) { sw(r, c, r + 1, c); const ok = find().size > 0; sw(r, c, r + 1, c); if (ok) return true; }
+  // 检测是否还有可交换的步骤
+  hasValidMove(){
+    const g = this.grid;
+    for (let r = 0; r < this.rows; r++){
+      for (let c = 0; c < this.cols; c++){
+        // 尝试向右交换
+        if (c < this.cols - 1) {
+          let tmp = g[r][c]; g[r][c] = g[r][c+1]; g[r][c+1] = tmp;
+          if (findMatches(g, this.rows, this.cols).size > 0) {
+            tmp = g[r][c]; g[r][c] = g[r][c+1]; g[r][c+1] = tmp;
+            return true;
+          }
+          tmp = g[r][c]; g[r][c] = g[r][c+1]; g[r][c+1] = tmp; // 换回来
+        }
+        // 尝试向下交换
+        if (r < this.rows - 1) {
+          let tmp = g[r][c]; g[r][c] = g[r+1][c]; g[r+1][c] = tmp;
+          if (findMatches(g, this.rows, this.cols).size > 0) {
+            tmp = g[r][c]; g[r][c] = g[r+1][c]; g[r+1][c] = tmp;
+            return true;
+          }
+          tmp = g[r][c]; g[r][c] = g[r+1][c]; g[r+1][c] = tmp; // 换回来
+        }
       }
     }
     return false;
-  }
-  function init() {
+  },
+
+  // 洗牌直到有解
+  shuffleBoard(){
+    toast('无解啦，自动洗牌~');
     let guard = 0;
     do {
-      board = [];
-      for (let r = 0; r < R; r++) {
-        board[r] = [];
-        for (let c = 0; c < C; c++) board[r][c] = rand();
-      }
-      let m;
-      while ((m = find()).size > 0 && guard++ < 60) {
-        m.forEach(function (k) { const p = k.split(','); board[+p[0]][+p[1]] = rand(); });
-      }
+      const all = [];
+      for (let r = 0; r < this.rows; r++)
+        for (let c = 0; c < this.cols; c++)
+          all.push(this.grid[r][c]);
+      shuffle(all);
+      
+      let idx = 0;
+      for (let r = 0; r < this.rows; r++)
+        for (let c = 0; c < this.cols; c++)
+          this.grid[r][c] = all[idx++];
+      
       guard++;
-    } while (!hasMove() && guard < 80);
-  }
+    } while (guard < 100 && (findMatches(this.grid, this.rows, this.cols).size > 0 || !this.hasValidMove()));
+    this.render();
+  },
 
-  function resolve() {
-    if (!run) return;
-    const m = find();
-    if (m.size === 0) { busy = false; return; }
-    score += m.size * 10;
-    $('gameScore').textContent = score;
-    m.forEach(function (k) { const p = k.split(','); board[+p[0]][+p[1]] = null; });
-    render();
-    setTimeout(function () {
-      if (!run) return;
-      drop(); render();
-      setTimeout(function () {
-        if (!run) return;
-        if (find().size === 0 && !hasMove()) init();
-        resolve();
-      }, 170);
-    }, 170);
-  }
+  render(popping){
+    if (!this.boardEl) return;
+    let html = '';
+    for (let r = 0; r < this.rows; r++){
+      for (let c = 0; c < this.cols; c++){
+        const v = this.grid[r][c];
+        const sel = this.sel && this.sel.r === r && this.sel.c === c;
+        const pop = popping && v === null;
+        html += `<div class="m3-tile${sel ? ' sel' : ''}${pop ? ' pop' : ''}" data-r="${r}" data-c="${c}">${v === null ? '' : getMatch3TileHtml(v)}</div>`;
+      }
+    }
+    this.boardEl.innerHTML = html;
+  },
 
-  function click(r, c) {
-    if (!run || busy) return;
-    if (!sel) { sel = [r, c]; render(); return; }
-    const sr = sel[0], sc = sel[1];
-    if (sr === r && sc === c) { sel = null; render(); return; }
-    if (Math.abs(sr - r) + Math.abs(sc - c) !== 1) { sel = [r, c]; render(); return; }
-    sel = null; busy = true;
-    sw(sr, sc, r, c); render();
-    if (find().size === 0) {
-      setTimeout(function () {
-        if (!run) return;
-        sw(sr, sc, r, c); render(); busy = false;
-      }, 170);
-    } else {
-      setTimeout(resolve, 170);
+  updateHUD(){
+    const s = document.getElementById('m3-score');
+    const m = document.getElementById('m3-moves');
+    const p = document.getElementById('m3-moves-pill');
+    if (s) s.textContent = this.score;
+    if (m) m.textContent = this.moves;
+    if (p) p.classList.toggle('warn', this.moves <= 5);
+  },
+
+  swapCells(a, b){
+    const t = this.grid[a.r][a.c];
+    this.grid[a.r][a.c] = this.grid[b.r][b.c];
+    this.grid[b.r][b.c] = t;
+  },
+
+  async trySwap(a, b){
+    if (this.over) return;
+    this.busy = true;
+    this.swapCells(a, b);
+    this.render();
+    await sleep(170);
+    if (this.over) return;
+
+    let m = findMatches(this.grid, this.rows, this.cols);
+    if (m.size === 0){
+      // 没消除，换回来
+      this.swapCells(a, b);
+      this.render();
+      this.busy = false;
+      return;
+            }
+    this.moves--;
+    this.updateHUD();
+
+    let combo = 0;
+    while (true){
+      m = findMatches(this.grid, this.rows, this.cols);
+      if (m.size === 0) break;
+      combo++;
+      this.score += m.size * 10 * combo;
+
+const snapshot = new Set(m);
+      const tiles = this.boardEl.querySelectorAll('.m3-tile');
+      snapshot.forEach(idx => {
+        const el = tiles[idx];
+        if (el) el.classList.add('pop');
+      });
+      await sleep(230);
+      snapshot.forEach(idx => {
+        this.grid[Math.floor(idx / this.cols)][idx % this.cols] = null;
+      });
+      this.render();
+      this.updateHUD();
+      await sleep(120);
+
+      this.drop();
+      this.render();
+      await sleep(190);
+    }
+
+    this.updateHUD();
+    
+    // 检查是否胜利
+    if (this.score >= this.target){ this.over = true; onLevelWin(); return; }
+    if (this.moves <= 0){ this.over = true; onLevelLose(`分数 ${this.score} / 目标 ${this.target}，再试一次吧！`); return; }
+    
+    // 如果没结束，检查是否有解
+    if (!this.hasValidMove()) {
+      this.shuffleBoard();
+    }
+    
+    this.busy = false;
+  },
+
+  drop(){
+    for (let c = 0; c < this.cols; c++){
+      let write = this.rows - 1;
+      for (let r = this.rows - 1; r >= 0; r--){
+        if (this.grid[r][c] !== null){
+          this.grid[write][c] = this.grid[r][c];
+          if (write !== r) this.grid[r][c] = null;
+          write--;
+        }
+      }
+      for (let r = write; r >= 0; r--){
+        this.grid[r][c] = rndInt(this.colors);
+      }
     }
   }
+};
 
-  const timer = setInterval(function () {
-    if (!run) return;
-    time--;
-    $('gameInfo').textContent = '第 ' + level + '/' + cfg.levels.length + ' 关 · 目标 ' + lv.target + ' 分 · 剩余 ' + Math.max(0, time) + ' 秒';
-    if (time <= 0) end();
-  }, 1000);
+/* ==========================================================================
+   游戏 2：拼图
+   ========================================================================== */
+G.puzzle = {
+  size: 3, order: [], sel: null, moves: 0,
+  img: '', boardEl: null, gameId: 'puzzle', over: false,
+  
+  startI: -1, startX: 0, startY: 0,
 
-  function end() {
-    run = false; clearInterval(timer);
-    const m = find();
-    if (m.size > 0) score += m.size * 10;
-    finishLevel('match3', level, score, score >= lv.target);
-  }
+  start(level, area, gameId){
+    this.gameId = gameId;
+    window.__currentLevel = level;
+    this.size = Math.min(5, 2 + Math.ceil(level / 13));
+    
+    area.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,.6);font-size:13px;letter-spacing:.1em">拼图加载中...</div>`;
+    
+    const rawImg = getPuzzleImage(level);
+    const imgObj = new Image();
+    
+    imgObj.onload = () => {
+      this.img = rawImg;
+      this.initBoard(level, area, gameId);
+    };
+    
+    imgObj.onerror = () => {
+      this.img = makeArt(level * 13 + 7);
+      this.initBoard(level, area, gameId);
+    };
+    
+    imgObj.src = rawImg;
+  },
 
-  init(); render();
-  activeCleanup = function () { run = false; clearInterval(timer); };
-}
+  initBoard(level, area, gameId){
+    this.sel = null;
+    this.moves = 0;
+    this.over = false;
 
-/* ---------------- 打地鼠 ---------------- */
-function startWhack(level) {
-  const cfg = DEV_CONFIG.whack;
-  const lv = cfg.levels[level - 1];
-  const HOLES = 9;
+    const n = this.size;
+    const total = n * n;
+    this.order = Array.from({ length: total }, (_, i) => i);
+    let guard = 0;
+    do { shuffle(this.order); guard++; } while (guard < 200 && this.order.filter((v, i) => v === i).length > Math.max(0, total - 4));
 
-  $('gameInfo').textContent = '第 ' + level + '/' + cfg.levels.length + ' 关 · 目标 ' + lv.target + ' 分 · ' + lv.duration + ' 秒';
-  makeGameBottom('whack', level);
+    area.innerHTML = `
+      <div class="hud-row">
+        <div class="hud-pill">拼块 <b>${n} × ${n}</b></div>
+        <div class="hud-pill">步数 <b id="pz-moves">0</b></div>
+      </div>
+      <div class="pz-container" id="pz-container">
+        <div class="pz-preview" id="pz-preview" style="background-image:url('${this.img}')"></div>
+        <div class="pz-board" id="pz-board"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button class="btn-ghost" id="pz-peek">👁 长按看原图</button>
+        <button class="btn-ghost" id="pz-shuffle">🔀 重新打乱</button>
+      </div>
+      <p style="margin-top:12px;font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-align:center">拖拽或点击两块拼图交换位置</p>`;
 
-  let run = true, score = 0, time = lv.duration;
-  const timers = []; let spawnT = null;
+    this.boardEl = area.querySelector('#pz-board');
+    this.boardEl.style.gridTemplateColumns = `repeat(${n},1fr)`;
 
-  const board = document.createElement('div'); board.className = 'whack-board'; $('gameArea').appendChild(board);
-  const holes = [];
+    const preview = area.querySelector('#pz-preview');
+    const peek = area.querySelector('#pz-peek');
+    peek.style.touchAction = 'none';
+    peek.style.userSelect = 'none';
+    
+    const showPreview = (e) => { e.preventDefault(); preview.classList.add('show'); };
+    const hidePreview = (e) => { if(e) e.preventDefault(); preview.classList.remove('show'); };
+    peek.addEventListener('pointerdown', showPreview);
+    peek.addEventListener('pointerup', hidePreview);
+    peek.addEventListener('pointerleave', hidePreview);
+    peek.addEventListener('pointercancel', hidePreview);
+     area.querySelector('#pz-shuffle').onclick = () => {
+      if (this.over) return;
+      let guard2 = 0;
+      do { shuffle(this.order); guard2++; } while (guard2 < 200 && this.order.filter((v, i) => v === i).length > Math.max(0, total - 4));
+      this.moves = 0;
+      this.sel = null;
+      this.render();
+      area.querySelector('#pz-moves').textContent = '0';
+    };
 
-  for (let i = 0; i < HOLES; i++) {
-    (function () {
-      const d = document.createElement('div'); d.className = 'whack-hole';
-      d.dataset.on = '0'; d.dataset.val = '0';
-      d.addEventListener('click', function () {
-        if (!run || d.dataset.on !== '1') return;
-        score += parseInt(d.dataset.val, 10) || 0;
-        $('gameScore').textContent = score;
-        d.dataset.on = '0'; d.dataset.val = '0';
-        clearEl(d); d.classList.remove('on');
-      });
-      board.appendChild(d); holes.push(d);
-    })();
-  }
-  function spawn() {
-    if (!run) return;
-    const free = holes.filter(function (h) { return h.dataset.on === '0'; });
-    if (!free.length) return;
-    const h = free[Math.floor(Math.random() * free.length)];
-    const bad = Math.random() < lv.badRate;
-    const pool = bad ? cfg.bad : cfg.good;
-    const it = pool[Math.floor(Math.random() * pool.length)];
-    clearEl(h); h.appendChild(makeIcon(it));
-    h.dataset.on = '1'; h.dataset.val = String(it.score);
-    h.classList.add('on');
-    timers.push(setTimeout(function () {
-      if (h.dataset.on === '1') {
-        h.dataset.on = '0'; h.dataset.val = '0';
-        clearEl(h); h.classList.remove('on');
+    this._onPointerDown = (e) => {
+      if (this.over) return;
+      const t = e.target.closest('.pz-piece');
+      if (!t) return;
+      this.startI = +t.dataset.i;
+      this.startX = e.clientX;
+      this.startY = e.clientY;
+    };
+    this._onPointerUp = (e) => {
+      if (this.over || this.startI === -1) return;
+      
+      const dx = e.clientX - this.startX;
+      const dy = e.clientY - this.startY;
+      const dist = Math.hypot(dx, dy);
+      
+      let targetI = this.startI;
+      
+      if (dist > 20) {
+        const el = document.elementFromPoint(e.clientX, e.clientY);
+        const t = el ? el.closest('.pz-piece') : null;
+        if (t) targetI = +t.dataset.i;
+        else { this.startI = -1; return; }
+      } else {
+        const el = e.target.closest('.pz-piece');
+        if (el) targetI = +el.dataset.i;
       }
-    }, 680));
+
+      if (targetI !== this.startI) {
+        const tmp = this.order[this.startI];
+        this.order[this.startI] = this.order[targetI];
+        this.order[targetI] = tmp;
+        this.moves++;
+        this.sel = null;
+        this.render();
+        const mEl = document.getElementById('pz-moves');
+        if (mEl) mEl.textContent = this.moves;
+
+        if (this.order.every((v, idx) => v === idx)){
+          this.over = true;
+          setTimeout(() => onLevelWin(), 260);
+        }
+      } else {
+        if (this.sel === this.startI) this.sel = null;
+        else this.sel = this.startI;
+        this.render();
+      }
+      
+      this.startI = -1;
+    };
+
+    this.boardEl.addEventListener('pointerdown', this._onPointerDown);
+    this.boardEl.addEventListener('pointerup', this._onPointerUp);
+    this.boardEl.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+    this.render();
+  },
+
+  stop(){
+    if (this.boardEl) {
+      this.boardEl.removeEventListener('pointerdown', this._onPointerDown);
+      this.boardEl.removeEventListener('pointerup', this._onPointerUp);
+    }
+    this.over = true;
+  },
+
+  render(){
+    if (!this.boardEl) return;
+    const n = this.size;
+    
+    let pieces = '';
+    for (let i = 0; i < n * n; i++){
+      const p = this.order[i];
+      const r = Math.floor(p / n), c = p % n;
+      const px = n === 1 ? 0 : (c / (n - 1)) * 100;
+      const py = n === 1 ? 0 : (r / (n - 1)) * 100;
+      const selCls = this.sel === i ? ' sel' : '';
+      const okCls = p === i ? ' ok' : '';
+      pieces += `<div class="pz-piece${selCls}${okCls}" data-i="${i}"
+        style="background-image:url('${this.img}');
+               background-size:${n * 100}% ${n * 100}%;
+               background-position:${px}% ${py}%"></div>`;
+    }
+    this.boardEl.innerHTML = pieces;
   }
+};
 
-  function loop() {
-    if (!run) return;
-    spawn();
-    spawnT = setTimeout(loop, lv.interval + Math.random() * 300);
+/* ==========================================================================
+   游戏 3：记忆卡片
+   ========================================================================== */
+G.memory = {
+  cards: [], picked: [], lock: false, timeLeft: 0, timerId: null,
+  boardEl: null, gameId: 'memory', over: false, pairs: 0,
+
+  start(level, area, gameId){
+    this.gameId = gameId;
+    window.__currentLevel = level;
+    this.pairs = Math.min(12, 4 + Math.floor((level - 1) / 6));
+    this.timeLeft = this.pairs * 9 + 8;
+    this.picked = [];
+    this.lock = false;
+    this.over = false;
+
+    const groups = ASSETS.memoryGroups;
+    const group = groups[rndInt(groups.length)];
+    const pool = group.items;
+    const chosen = shuffle([...pool]).slice(0, this.pairs);
+    const deck = shuffle([...chosen, ...chosen]);
+    this.cards = deck.map(e => ({ face: e, flipped: false, done: false }));
+
+    const total = this.cards.length;
+    let cols = 4;
+    if (total <= 8) cols = 4;
+    else if (total <= 12) cols = 4;
+    else if (total <= 16) cols = 4;
+    else if (total <= 20) cols = 5;
+    else cols = 6;
+    area.innerHTML = `
+      <div class="hud-row">
+        <div class="hud-pill">主题 <b>${group.name}</b></div>
+        <div class="hud-pill">配对 <b id="mc-pairs">0</b> / ${this.pairs}</div>
+        <div class="hud-pill" id="mc-time-pill">时间 <b id="mc-time">${this.timeLeft}</b>s</div>
+      </div>
+      <div class="mc-board" id="mc-board" style="grid-template-columns:repeat(${cols},1fr)"></div>`;
+
+    this.boardEl = area.querySelector('#mc-board');
+    this.boardEl.addEventListener('pointerdown', this._onClick);
+    this.render();
+
+    this.timerId = setInterval(() => {
+      if (this.over) return;
+      this.timeLeft--;
+      const tEl = document.getElementById('mc-time');
+      const pEl = document.getElementById('mc-time-pill');
+      if (tEl) tEl.textContent = this.timeLeft;
+      if (pEl) pEl.classList.toggle('warn', this.timeLeft <= 10);
+      if (this.timeLeft <= 0){
+        this.over = true;
+        clearInterval(this.timerId);
+        onLevelLose('时间到啦！再来一次吧');
+      }
+    }, 1000);
+  },
+
+  stop(){
+    clearInterval(this.timerId);
+    this.timerId = null;
+    if (this.boardEl) this.boardEl.removeEventListener('pointerdown', this._onClick);
+    this.over = true;
+  },
+
+  _onClick(e){
+    const self = G.memory;
+    const el = e.target.closest('.mc-card');
+    if (!el || self.over) return;
+    self.flip(+el.dataset.i);
+  },
+
+  flip(i){
+    const c = this.cards[i];
+    if (!c || c.flipped || c.done || this.lock) return;
+    c.flipped = true;
+    this.render();
+
+    this.picked.push(i);
+    if (this.picked.length === 2){
+      const [a, b] = this.picked;
+      this.lock = true;
+      if (this.cards[a].face.name === this.cards[b].face.name){
+        setTimeout(() => {
+          this.cards[a].done = true;
+          this.cards[b].done = true;
+          this.picked = [];
+          this.lock = false;
+          this.render();
+          this.checkWin();
+        }, 320);
+      } else {
+        setTimeout(() => {
+          this.cards[a].flipped = false;
+          this.cards[b].flipped = false;
+          this.picked = [];
+          this.lock = false;
+          this.render();
+        }, 680);
+      }
+    }
+  },
+
+  checkWin(){
+    const doneCount = this.cards.filter(c => c.done).length / 2;
+    const pEl = document.getElementById('mc-pairs');
+    if (pEl) pEl.textContent = doneCount;
+    if (doneCount >= this.pairs){
+      this.over = true;
+      clearInterval(this.timerId);
+      setTimeout(() => onLevelWin(), 300);
+    }
+  },
+
+  render(){
+    if (!this.boardEl) return;
+    let html = '';
+    this.cards.forEach((c, i) => {
+      const flip = c.flipped || c.done;
+      const done = c.done;
+      
+      let faceContent = c.face.emoji;
+      if (c.face.img) faceContent = `<img src="${c.face.img}" onerror="this.outerHTML='${c.face.emoji}'">`;
+
+      html += `<div class="mc-card${flip ? ' flip' : ''}${done ? ' done' : ''}" data-i="${i}">
+        <div class="mc-face mc-back">?</div>
+        <div class="mc-face mc-front">${faceContent}</div>
+      </div>`;
+    });
+    this.boardEl.innerHTML = html;
+    this.checkWinSilent();
+  },
+
+  checkWinSilent(){
+    const doneCount = this.cards.filter(c => c.done).length / 2;
+    const pEl = document.getElementById('mc-pairs');
+    if (pEl) pEl.textContent = doneCount;
   }
+};
+  /* ==========================================================================
+   游戏 4：打地鼠
+   ========================================================================== */
+G.whack = {
+  holes: 9, target: 0, hits: 0, timeLeft: 30,
+  spawnTimer: null, clockTimer: null,
+  moleDuration: 900, spawnInterval: 700,
+  active: -1, gameId: 'whack', over: false, hasBomb: false,
 
-  const timer = setInterval(function () {
-    if (!run) return;
-    time--;
-    $('gameInfo').textContent = '第 ' + level + '/' + cfg.levels.length + ' 关 · 目标 ' + lv.target + ' 分 · 剩余 ' + Math.max(0, time) + ' 秒';
-    if (time <= 0) end();
-  }, 1000);
+  start(level, area, gameId){
+    this.gameId = gameId;
+    window.__currentLevel = level;
+    this.hits = 0;
+    this.timeLeft = 30;
+    this.target = 10 + Math.floor(level * 0.8);
+    this.moleDuration = Math.max(430, 1150 - level * 14);
+    this.spawnInterval = Math.max(320, 800 - level * 9);
+    this.hasBomb = level >= 15;
+    this.over = false;
+    this.active = -1;
 
-  function end() {
-    run = false; clearInterval(timer); clearTimeout(spawnT);
-    timers.forEach(clearTimeout);
-    finishLevel('whack', level, score, score >= lv.target);
+    area.innerHTML = `
+      <div class="hud-row">
+        <div class="hud-pill">得分 <b id="wm-hits">0</b> / ${this.target}</div>
+        <div class="hud-pill" id="wm-time-pill">时间 <b id="wm-time">30</b>s</div>
+      </div>
+      <div class="wm-grid" id="wm-grid">
+        ${Array.from({ length: 9 }, (_, i) => `<div class="wm-hole" data-i="${i}"><div class="wm-mole"></div></div>`).join('')}
+      </div>
+      <p style="margin-top:16px;font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-align:center">
+        点击冒出的地鼠，打中得分${level >= 15 ? '（小心 💣 炸弹）' : ''}
+      </p>`;
+
+    this.gridEl = area.querySelector('#wm-grid');
+    this.gridEl.addEventListener('pointerdown', this._onClick);
+
+    this.clockTimer = setInterval(() => {
+      if (this.over) return;
+      this.timeLeft--;
+      const tEl = document.getElementById('wm-time');
+      const pEl = document.getElementById('wm-time-pill');
+      if (tEl) tEl.textContent = this.timeLeft;
+      if (pEl) pEl.classList.toggle('warn', this.timeLeft <= 8);
+      if (this.timeLeft <= 0){
+        this.over = true;
+        this.clearTimers();
+        if (this.hits >= this.target) onLevelWin();
+        else onLevelLose(`打中了 ${this.hits} 只，目标是 ${this.target} 只`);
+      }
+    }, 1000);
+
+    this.spawnTimer = setInterval(() => this.spawn(), this.spawnInterval);
+    this.spawn();
+  },
+
+  _onClick(e){
+    const self = G.whack;
+    const hole = e.target.closest('.wm-hole');
+    if (!hole || self.over) return;
+    self.hit(+hole.dataset.i, hole);
+  },
+
+  spawn(){
+    if (this.over) return;
+    if (this.active >= 0){
+      const prev = this.gridEl.querySelector(`.wm-hole[data-i="${this.active}"]`);
+      if (prev){ prev.classList.remove('up'); prev.dataset.type = ''; }
+    }
+    const i = rndInt(9);
+    this.active = i;
+    const hole = this.gridEl.querySelector(`.wm-hole[data-i="${i}"]`);
+    if (!hole) return;
+
+    const isBomb = this.hasBomb && Math.random() < 0.16;
+    hole.dataset.type = isBomb ? 'bomb' : 'mole';
+    const mole = hole.querySelector('.wm-mole');
+    
+    const item = isBomb ? ASSETS.whack.bomb : ASSETS.whack.mole;
+    if (item.img) mole.innerHTML = `<img src="${item.img}" onerror="this.outerHTML='${item.emoji}'">`;
+    else mole.innerHTML = item.emoji;
+    
+    hole.classList.add('up');
+
+    const dur = this.moleDuration;
+    setTimeout(() => {
+      if (this.over) return;
+      hole.classList.remove('up');
+      hole.dataset.type = '';
+    }, dur);
+  },
+
+  hit(i, hole){
+    if (hole.dataset.type === 'bomb'){
+      hole.classList.add('boom');
+      this.timeLeft = Math.max(0, this.timeLeft - 4);
+      const tEl = document.getElementById('wm-time');
+      if (tEl) tEl.textContent = this.timeLeft;
+      setTimeout(() => hole.classList.remove('boom'), 320);
+      return;
+    }
+    if (!hole.classList.contains('up')) return;
+    hole.classList.remove('up');
+    hole.classList.add('hit');
+    setTimeout(() => hole.classList.remove('hit'), 220);
+    hole.dataset.type = '';
+    this.hits++;
+    const hEl = document.getElementById('wm-hits');
+    if (hEl) hEl.textContent = this.hits;
+    if (this.hits >= this.target){
+      this.over = true;
+      this.clearTimers();
+      setTimeout(() => onLevelWin(), 220);
+    }
+  },
+
+  clearTimers(){
+    clearInterval(this.spawnTimer);
+    clearInterval(this.clockTimer);
+    this.spawnTimer = null;
+    this.clockTimer = null;
+  },
+
+  stop(){
+    this.over = true;
+    this.clearTimers();
+    if (this.gridEl) this.gridEl.removeEventListener('pointerdown', this._onClick);
   }
+};
+  /* ==========================================================================
+   游戏 5：2048
+   ========================================================================== */
+G.g2048 = {
+  grid: [], size: 4, target: 64, score: 0, over: false,
+  boardEl: null, gameId: 'g2048', won: false,
+  startY: 0, startX: 0,
 
-  loop();
-  activeCleanup = function () {
-    run = false; clearInterval(timer); clearTimeout(spawnT);
-    timers.forEach(clearTimeout);
+  start(level, area, gameId){
+    this.gameId = gameId;
+    window.__currentLevel = level;
+    this.size = 4;
+    this.target = Math.min(2048, 64 * Math.pow(2, Math.floor((level - 1) / 9)));
+    this.grid = Array.from({ length: 4 }, () => [0,0,0,0]);
+    this.score = 0;
+    this.over = false;
+    this.won = false;
+
+    area.innerHTML = `
+      <div class="hud-row">
+        <div class="hud-pill">目标 <b>${this.target}</b></div>
+        <div class="hud-pill">分数 <b id="g2-score">0</b></div>
+      </div>
+      <div class="g2048-wrap">
+        <div class="g2048-board" id="g2-board"></div>
+        <p style="margin-top:16px;font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-align:center">
+          滑动屏幕或使用方向键合并数字
+        </p>
+      </div>`;
+
+    this.boardEl = area.querySelector('#g2-board');
+    this.spawn();
+    this.spawn();
+    this.render();
+
+    this._keyHandler = e => {
+      const map = { ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right',
+                    w:'up', s:'down', a:'left', d:'right', W:'up', S:'down', A:'left', D:'right' };
+      const dir = map[e.key];
+      if (dir){ e.preventDefault(); this.move(dir); }
+    };
+    window.addEventListener('keydown', this._keyHandler);
+
+    this.boardEl.addEventListener('pointerdown', this._down);
+    this.boardEl.addEventListener('pointerup', this._up);
+    this.boardEl.addEventListener('touchmove', e => e.preventDefault(), { passive:false });
+  },
+
+  _down(e){
+    const self = G.g2048;
+    self.startX = e.clientX;
+    self.startY = e.clientY;
+  },
+  _up(e){
+    const self = G.g2048;
+    if (self.over) return;
+    const dx = e.clientX - self.startX;
+    const dy = e.clientY - self.startY;
+    if (Math.abs(dx) < 24 && Math.abs(dy) < 24) return;
+    if (Math.abs(dx) > Math.abs(dy)){
+      self.move(dx > 0 ? 'right' : 'left');
+    } else {
+      self.move(dy > 0 ? 'down' : 'up');
+    }
+  },
+
+  stop(){
+    window.removeEventListener('keydown', this._keyHandler);
+    if (this.boardEl){
+      this.boardEl.removeEventListener('pointerdown', this._down);
+      this.boardEl.removeEventListener('pointerup', this._up);
+    }
+    this.over = true;
+  },
+
+  spawn(){
+    const empty = [];
+    for (let r = 0; r < 4; r++)
+      for (let c = 0; c < 4; c++)
+        if (this.grid[r][c] === 0) empty.push([r, c]);
+    if (!empty.length) return;
+    const [r, c] = empty[rndInt(empty.length)];
+    this.grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+  },
+
+  move(dir){
+    if (this.over) return;
+    const before = JSON.stringify(this.grid);
+    const g = this.grid;
+
+    const slide = arr => {
+      const nz = arr.filter(v => v !== 0);
+      const out = [];
+      for (let i = 0; i < nz.length; i++){
+        if (i < nz.length - 1 && nz[i] === nz[i+1]){
+          out.push(nz[i] * 2);
+          this.score += nz[i] * 2;
+          i++;
+        } else {
+          out.push(nz[i]);
+        }
+      }
+      while (out.length < 4) out.push(0);
+      return out;
+    };
+if (dir === 'left' || dir === 'right'){
+      for (let r = 0; r < 4; r++){
+        let row = g[r].slice();
+        if (dir === 'right') row.reverse();
+        row = slide(row);
+        if (dir === 'right') row.reverse();
+        g[r] = row;
+      }
+    } else {
+      for (let c = 0; c < 4; c++){
+        let col = [g[0][c], g[1][c], g[2][c], g[3][c]];
+        if (dir === 'down') col.reverse();
+        col = slide(col);
+        if (dir === 'down') col.reverse();
+        for (let r = 0; r < 4; r++) g[r][c] = col[r];
+      }
+    }
+
+    if (JSON.stringify(this.grid) === before) return;
+
+    this.spawn();
+    this.render();
+
+    const sEl = document.getElementById('g2-score');
+    if (sEl) sEl.textContent = this.score;
+
+    let maxV = 0;
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) maxV = Math.max(maxV, g[r][c]);
+    if (maxV >= this.target && !this.won){
+      this.won = true;
+      this.over = true;
+      setTimeout(() => onLevelWin(), 320);
+      return;
+    }
+
+    if (!this.canMove()){
+      this.over = true;
+      setTimeout(() => onLevelLose(`棋盘已满，最高方块 ${maxV}，目标是 ${this.target}`), 320);
+    }
+  },
+  canMove(){
+    const g = this.grid;
+    for (let r = 0; r < 4; r++)
+      for (let c = 0; c < 4; c++){
+        if (g[r][c] === 0) return true;
+        if (c < 3 && g[r][c] === g[r][c+1]) return true;
+        if (r < 3 && g[r][c] === g[r+1][c]) return true;
+      }
+    return false;
+  },
+
+  render(){
+    if (!this.boardEl) return;
+    let html = '';
+    for (let r = 0; r < 4; r++){
+      for (let c = 0; c < 4; c++){
+        const v = this.grid[r][c];
+        if (v === 0) {
+          html += `<div class="t2048"></div>`;
+        } else {
+          const item = ASSETS.g2048.find(x => x.num === v);
+          let imgStyle = '', hasImgClass = '';
+          if (item && item.img) {
+            imgStyle = `background-image: url('${item.img}');`;
+            hasImgClass = ' has-img';
+          }
+          const emojiStr = item && item.emoji ? item.emoji + ' ' : '';
+          html += `<div class="t2048 new${hasImgClass}" data-v="${v}" style="${imgStyle}">
+            <span>${emojiStr}${v}</span>
+          </div>`;
+        }
+      }
+    }
+    this.boardEl.innerHTML = html;
+  }
+};
+
+/* ==========================================================================
+   开场动画 & 初始化
+   ========================================================================== */
+const Intro = {
+  running: false,
+  async play(){
+    this.running = true;
+    const welcome = $('#intro-welcome');
+    const fill = $('#loading-fill');
+    const linesBox = $('#intro-lines');
+    const lines = [$('#il0'), $('#il1'), $('#il2')];
+
+    welcome.classList.add('show');
+    await sleep(100);
+    fill.style.width = '100%'; 
+    
+    await sleep(2400); 
+    if (!this.running) return;
+    welcome.classList.remove('show');
+    welcome.classList.add('hide');
+    await sleep(600); 
+    if (!this.running) return;
+
+    linesBox.classList.add('show');
+    for (const l of lines){
+      if (!this.running) return;
+      l.classList.add('show');
+      await sleep(1350);
+    }
+
+    await sleep(1200);
+    if (!this.running) return;
+    this.finish();
+  },
+
+  async finish(){
+    this.running = false;
+    const intro = $('#intro');
+    intro.classList.add('fading');
+    await sleep(760);
+    intro.style.display = 'none';
+    intro.classList.remove('active');
+    showScreen('home');
+    renderHome();
+  }
+};
+
+function init(){
+  BGSystem.init();
+
+  $('#skip-intro').onclick = () => {
+    if (Intro.running){
+      Intro.running = false;
+      Intro.finish();
+    }
   };
+
+  $('#open-settings').onclick = () => BGSystem.open();
+
+  $('#levels-back').onclick = () => { showScreen('home'); renderHome(); };
+  $('#play-back').onclick = () => {
+    stopActiveGame();
+    if (currentGameId) openLevels(currentGameId);
+    else showScreen('home');
+  };
+
+  document.querySelector('#modal .modal-mask').onclick = () => closeModal();
+
+  document.addEventListener('touchmove', e => {
+    if (e.target.closest('#play-area, .level-grid, .game-grid, .panel-box')) return;
+    e.preventDefault();
+  }, { passive: false });
+
+  Intro.play();
 }
 
-/* ---------------- 记忆配对 ---------------- */
-function startMemory(level) {
-  const cfg = DEV_CONFIG.memory;
-  const lv = cfg.levels[level - 1];
-
-  $('gameInfo').textContent = '第 ' + level + '/' + cfg.levels.length + ' 关 · ' + lv.pairs + ' 对 · ' + lv.duration + ' 秒';
-  makeGameBottom('memory', level);
-
-  let run = true, time = lv.duration, moves = 0, matched = 0, first = null, lock = false;
-
-  const picked = cfg.cards.slice(0, lv.pairs);
-  const deck = shuffle(picked.concat(picked));
-  const grid = document.createElement('div'); grid.className = 'mem-grid'; $('gameArea').appendChild(grid);
-
-  for (let i = 0; i < deck.length; i++) {
-    (function (idx) {
-      const d = document.createElement('div'); d.className = 'mem-card';
-      showBack(d);
-      d.addEventListener('click', function () { click(idx, d); });
-      grid.appendChild(d);
-    })(i);
-  }
-
-  function showBack(el) { clearEl(el); el.appendChild(makeIcon(cfg.back)); el.classList.remove('flip', 'matched'); }
-  function showFront(el, data) { clearEl(el); el.appendChild(makeIcon(data)); el.classList.add('flip'); }
-
-  function click(idx, el) {
-    if (!run || lock || el.classList.contains('matched')) return;
-    if (first && first.idx === idx) return;
-    showFront(el, deck[idx]);
-    if (!first) { first = { idx: idx, el: el }; return; }
-    moves++; lock = true;
-    const a = first; first = null;
-
-    if (deck[a.idx].emoji === deck[idx].emoji) {
-      setTimeout(function () {
-        if (!run) return;
-        a.el.classList.add('matched'); el.classList.add('matched');
-        matched++; lock = false;
-        if (matched === lv.pairs) end();
-      }, 240);
-    } else {
-      setTimeout(function () {
-        if (!run) return;
-        showBack(a.el); showBack(el); lock = false;
-      }, 650);
-    }
-  }
-
-  const timer = setInterval(function () {
-    if (!run) return;
-    time--;
-    $('gameInfo').textContent = '第 ' + level + '/' + cfg.levels.length + ' 关 · 已配对 ' + matched + ' · 剩余 ' + Math.max(0, time) + ' 秒';
-    if (time <= 0) {
-      run = false; clearInterval(timer);
-      finishLevel('memory', level, matched * 10, false);
-    }
-  }, 1000);
-
-  function end() {
-    run = false; clearInterval(timer);
-    const sc = Math.max(20, lv.pairs * 100 - moves * 8);
-    $('gameScore').textContent = sc;
-    finishLevel('memory', level, sc, true);
-  }
-
-  activeCleanup = function () { run = false; clearInterval(timer); };
-}
-/* ---------------- 弹窗 / 改名 / 装扮 / 教程 ---------------- */
-function showModal(title, bodyHTML, buttons) {
-  $('modalTitle').textContent = title;
-  $('modalBody').innerHTML = bodyHTML;
-  const f = $('modalFoot'); clearEl(f);
-  (buttons || []).forEach(function (b) {
-    const btn = document.createElement('button');
-    btn.className = 'btn' + (b.primary ? ' primary' : '');
-    btn.textContent = b.text;
-    btn.addEventListener('click', function () { if (b.onClick) b.onClick(); });
-    f.appendChild(btn);
-  });
-  $('mask').classList.add('show');
-}
-function closeModal() { $('mask').classList.remove('show'); }
-$('mask').addEventListener('click', function (e) { if (e.target === $('mask')) closeModal(); });
-
-function showToast(msg) {
-  const t = document.createElement('div');
-  t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,.15);max-width:90%;text-align:center;';
-  document.body.appendChild(t);
-  setTimeout(function () { t.remove(); }, 1800);
-}
-
-/* 改名 */
-$('btnRename').addEventListener('click', function () {
-  let html = '';
-  Object.values(DEV_CONFIG.characters).forEach(function (ch) {
-    html += '<div class="field"><label>' + esc(ch.name) + ' 的名字</label>' +
-      '<input id="inp-' + ch.key + '" maxlength="8" value="' + esc(state.names[ch.key] || '') + '"></div>';
-  });
-  showModal('✏️ 取名字', html, [
-    { text: '取消', onClick: closeModal },
-    { text: '保存', primary: true, onClick: function () {
-      Object.values(DEV_CONFIG.characters).forEach(function (ch) {
-        const el = $('inp-' + ch.key);
-        const v = el ? el.value : '';
-        state.names[ch.key] = v.trim() || ch.name;
-      });
-      save(); refreshHUD(); closeModal();
-    } }
-  ]);
-});
-
-/* 装扮商店 */
-$('btnDress').addEventListener('click', function () {
-  let html = '<p style="font-size:12px;color:var(--muted);margin-bottom:12px;">🪙 金币：' + state.coins + '</p>';
-
-  html += '<div class="opt-row"><span class="opt-label">主题</span><div style="display:flex;gap:6px;flex-wrap:wrap;">';
-  DEV_CONFIG.shop.themes.forEach(function (t) {
-    const owned = state.ownedThemes.indexOf(t.id) !== -1;
-    const on = state.theme === t.id;
-    html += '<button class="opt' + (on ? ' on' : '') + (owned ? '' : ' locked') + '" ' +
-      'data-theme="' + t.id + '" ' + (owned ? '' : 'disabled') + ' ' +
-      'style="background:' + t.bg + '" title="' + esc(t.name) + (owned ? '' : ' · ' + t.price + '🪙') + '">' +
-      (owned ? '' : '🔒') + '</button>';
-  });
-  html += '</div></div>';
-
-  Object.values(DEV_CONFIG.characters).forEach(function (ch) {
-    html += '<div class="opt-row"><span class="opt-label">' + esc(state.names[ch.key]) + '</span><div style="display:flex;gap:5px;flex-wrap:wrap;">';
-    DEV_CONFIG.shop.accessories.forEach(function (a) {
-      const owned = state.ownedAcc.indexOf(a.id) !== -1;
-      const on = state.acc[ch.key] === a.id;
-      html += '<button class="opt' + (on ? ' on' : '') + (owned ? '' : ' locked') + '" ' +
-         'data-acc="' + ch.key + '" data-val="' + a.id + '" ' + (owned ? '' : 'disabled') + '>' +
-        (owned ? a.emoji : '🔒') + '</button>';
-    });
-    html += '</div></div>';
-  });
-
-  showModal('🎀 装扮商店', html, [{ text: '关闭', onClick: closeModal }]);
-
-  $('modalBody').querySelectorAll('[data-theme]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      const id = btn.dataset.theme;
-      const t = DEV_CONFIG.shop.themes.find(function (x) { return x.id === id; });
-      if (state.ownedThemes.indexOf(id) === -1) {
-        if (state.coins < t.price) { showToast('金币不够哦～'); return; }
-        state.coins -= t.price; state.ownedThemes.push(id); addCoins(0);
-      }
-      state.theme = id; save(); applyTheme(); refreshHUD(); closeModal();
-    });
-  });
-
-  $('modalBody').querySelectorAll('[data-acc]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      const key = btn.dataset.acc;
-      const id = btn.dataset.val;
-      const a = DEV_CONFIG.shop.accessories.find(function (x) { return x.id === id; });
-      if (state.ownedAcc.indexOf(id) === -1) {
-        if (state.coins < a.price) { showToast('金币不够哦～'); return; }
-        state.coins -= a.price; state.ownedAcc.push(id); addCoins(0);
-      }
-      state.acc[key] = id; save(); refreshHUD(); closeModal();
-    });
-  });
-});
-
-/* 教程 */
-const TUT = [
-  { sel: '.map-grid', text: '这是你们的家～点一点房间就能进去互动。小游戏都放在「游戏室」里，一共 3 个游戏，每个 15 关。' },
-  { sel: '.family-strip', text: '一家人各自有心情值。在房间里点击他们，可以提升心情、赚金币；金币能用来买配饰和主题。' },
-  { sel: '.top-actions', text: '右上角可以取名字、装扮、重看教程。小游戏通关也会奖励金币，重玩已通关的关卡奖励减半。' }
-];
-let tutI = 0;
-
-function startTut() { tutI = 0; $('tutMask').classList.add('show'); renderTut(); }
-
-function renderTut() {
-  if (tutI >= TUT.length) {
-    $('tutMask').classList.remove('show');
-    state.tutorialDone = true; save(); return;
-  }
-  const st = TUT[tutI];
-  const t = document.querySelector(st.sel);
-  if (!t) { tutI++; renderTut(); return; }
-  const r = t.getBoundingClientRect();
-  const h = $('tutHole');
-  h.style.cssText = 'left:' + (r.left - 8) + 'px;top:' + (r.top - 8) + 'px;width:' + (r.width + 16) + 'px;height:' + (r.height + 16) + 'px;';
-  $('tutText').textContent = st.text;
-  $('tutNext').textContent = tutI === TUT.length - 1 ? '开始吧！' : '下一步';
-}
-
-$('tutNext').addEventListener('click', function () { tutI++; renderTut(); });
-$('tutSkip').addEventListener('click', function () {
-  $('tutMask').classList.remove('show');
-  state.tutorialDone = true; save();
-});
-$('btnTut').addEventListener('click', startTut);
-
-/* ---------------- 初始化 ---------------- */
-load();
-applyTheme();
-renderMap();
-refreshHUD();
-if (!state.tutorialDone) setTimeout(startTut, 400);
+window.addEventListener('load', init);
 </script>
 </body>
 </html>
-        
-    
